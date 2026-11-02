@@ -1,27 +1,26 @@
+"""
+Copiază videoclipurile WLASL pentru cele 15 cuvinte în data/raw_videos/<cuvânt>/.
+
+Rulare (din rădăcina proiectului):
+    python -m src.data.organize_videos
+"""
 import json
 import os
 import shutil
 
-# 1. Calea către fișierul JSON descărcat (asigură-te că e în folderul proiectului)
-JSON_FILE = 'WLASL_v0.3.json'
+from src.config import ACTIONS, RAW_VIDEOS_DIR, WLASL_JSON, WLASL_VIDEOS_SOURCE
 
-# 2. Calea către folderul UNDE AI DESCARCAT TU toate mp4-urile amestecate 
-# (Schimbă cu calea ta reală, ex: 'C:/Users/tranc/Downloads/WLASL/videos')
-VIDEOS_SOURCE_FOLDER = r'C:\Users\tranc\OneDrive\Desktop\dataset licenta\videos'
+JSON_FILE = WLASL_JSON
+VIDEOS_SOURCE_FOLDER = WLASL_VIDEOS_SOURCE  # schimbă calea în src/config.py
+OUTPUT_FOLDER = RAW_VIDEOS_DIR
 
-# 3. Calea unde vrem să le mutăm organizat pentru proiect
-OUTPUT_FOLDER = os.path.join('data', 'raw_videos')
-
-# Lista noastră de 15 cuvinte (scrise exact cum apar în WLASL)
-TARGET_WORDS = [
-    'hello', 'thank you', 'yes', 'no', 'help', 
-    'please', 'sorry', 'teacher', 'student', 'book', 
-    'computer', 'learn', 'need', 'good', 'stop'
-]
+# Cuvintele scrise exact cum apar în WLASL ('thank you' are spațiu; folderul e 'thankyou')
+WLASL_GLOSS = {'thankyou': 'thank you'}
+TARGET_WORDS = [WLASL_GLOSS.get(a, a) for a in ACTIONS]
 
 def organize_dataset():
     if not os.path.exists(JSON_FILE):
-        print(f"EROARE: Nu găsesc fișierul {JSON_FILE}. Pune-l în folderul proiectului!")
+        print(f"EROARE: Nu găsesc fișierul {JSON_FILE}. Pune-l în folderul data/!")
         return
 
     if not os.path.exists(VIDEOS_SOURCE_FOLDER):

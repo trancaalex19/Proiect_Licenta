@@ -1,0 +1,222 @@
+{
+  "description": "Videoclipuri WLASL eliminate manual din setul de date (2026-11-02). Pentru fiecare: mp4 șters din data/raw_videos, .npy corespunzător șters din data/processed_keypoints, setul în care era înainte de reîmpărțire. Completează câmpul \"reason\" (ex.: semn greșit, altă variantă, semnatar ieșit din cadru).",
+  "removed": [
+    {
+      "word": "good",
+      "mp4": "25068.mp4",
+      "npy": "video_2.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "good",
+      "mp4": "25070.mp4",
+      "npy": "video_4.npy",
+      "old_split": "test",
+      "reason": ""
+    },
+    {
+      "word": "good",
+      "mp4": "25073.mp4",
+      "npy": "video_6.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "good",
+      "mp4": "65835.mp4",
+      "npy": "video_8.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "good",
+      "mp4": "69347.mp4",
+      "npy": "video_9.npy",
+      "old_split": "val",
+      "reason": ""
+    },
+    {
+      "word": "hello",
+      "mp4": "27177.mp4",
+      "npy": "video_2.npy",
+      "old_split": "test",
+      "reason": ""
+    },
+    {
+      "word": "learn",
+      "mp4": "32612.mp4",
+      "npy": "video_5.npy",
+      "old_split": "val",
+      "reason": ""
+    },
+    {
+      "word": "no",
+      "mp4": "38529.mp4",
+      "npy": "video_3.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "no",
+      "mp4": "38530.mp4",
+      "npy": "video_4.npy",
+      "old_split": "test",
+      "reason": ""
+    },
+    {
+      "word": "no",
+      "mp4": "38533.mp4",
+      "npy": "video_6.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "no",
+      "mp4": "38534.mp4",
+      "npy": "video_7.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "no",
+      "mp4": "69411.mp4",
+      "npy": "video_10.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "please",
+      "mp4": "43222.mp4",
+      "npy": "video_4.npy",
+      "old_split": "val",
+      "reason": ""
+    },
+    {
+      "word": "sorry",
+      "mp4": "53370.mp4",
+      "npy": "video_3.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "sorry",
+      "mp4": "53371.mp4",
+      "npy": "video_4.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "stop",
+      "mp4": "54928.mp4",
+      "npy": "video_3.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "student",
+      "mp4": "55337.mp4",
+      "npy": "video_0.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "student",
+      "mp4": "55339.mp4",
+      "npy": "video_2.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "student",
+      "mp4": "55340.mp4",
+      "npy": "video_3.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "student",
+      "mp4": "55341.mp4",
+      "npy": "video_4.npy",
+      "old_split": "test",
+      "reason": ""
+    },
+    {
+      "word": "student",
+      "mp4": "69494.mp4",
+      "npy": "video_7.npy",
+      "old_split": "val",
+      "reason": ""
+    },
+    {
+      "word": "teacher",
+      "mp4": "57039.mp4",
+      "npy": "video_0.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "teacher",
+      "mp4": "57044.mp4",
+      "npy": "video_4.npy",
+      "old_split": "test",
+      "reason": ""
+    },
+    {
+      "word": "teacher",
+      "mp4": "57045.mp4",
+      "npy": "video_5.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "yes",
+      "mp4": "64283.mp4",
+      "npy": "video_2.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "yes",
+      "mp4": "64284.mp4",
+      "npy": "video_3.npy",
+      "old_split": "test",
+      "reason": ""
+    },
+    {
+      "word": "yes",
+      "mp4": "64287.mp4",
+      "npy": "video_4.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "yes",
+      "mp4": "64288.mp4",
+      "npy": "video_5.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "yes",
+      "mp4": "64291.mp4",
+      "npy": "video_6.npy",
+      "old_split": "val",
+      "reason": ""
+    },
+    {
+      "word": "yes",
+      "mp4": "64292.mp4",
+      "npy": "video_7.npy",
+      "old_split": "train",
+      "reason": ""
+    },
+    {
+      "word": "yes",
+      "mp4": "69546.mp4",
+      "npy": "video_11.npy",
+      "old_split": "test",
+      "reason": ""
+    }
+  ]
+}

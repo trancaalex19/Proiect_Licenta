@@ -1,0 +1,195 @@
+{
+  "seed": 42,
+  "train": {
+    "hello": [
+      "video_3.npy"
+    ],
+    "thankyou": [
+      "video_6.npy",
+      "video_1.npy",
+      "video_2.npy",
+      "video_5.npy",
+      "video_0.npy"
+    ],
+    "yes": [
+      "video_10.npy",
+      "video_9.npy",
+      "video_0.npy"
+    ],
+    "no": [
+      "video_5.npy",
+      "video_8.npy",
+      "video_9.npy",
+      "video_0.npy"
+    ],
+    "help": [
+      "video_12.npy",
+      "video_8.npy",
+      "video_1.npy",
+      "video_2.npy",
+      "video_6.npy",
+      "video_11.npy",
+      "video_9.npy",
+      "video_0.npy",
+      "video_5.npy",
+      "video_4.npy"
+    ],
+    "please": [
+      "video_1.npy",
+      "video_2.npy",
+      "video_3.npy",
+      "video_6.npy"
+    ],
+    "sorry": [
+      "video_0.npy",
+      "video_2.npy",
+      "video_1.npy"
+    ],
+    "teacher": [
+      "video_2.npy",
+      "video_1.npy",
+      "video_6.npy"
+    ],
+    "student": [
+      "video_6.npy"
+    ],
+    "book": [
+      "video_1.npy",
+      "video_5.npy",
+      "video_3.npy",
+      "video_0.npy"
+    ],
+    "computer": [
+      "video_3.npy",
+      "video_7.npy",
+      "video_0.npy",
+      "video_1.npy",
+      "video_11.npy",
+      "video_13.npy",
+      "video_5.npy",
+      "video_6.npy",
+      "video_12.npy",
+      "video_4.npy"
+    ],
+    "learn": [
+      "video_1.npy",
+      "video_2.npy",
+      "video_3.npy",
+      "video_0.npy",
+      "video_7.npy"
+    ],
+    "need": [
+      "video_0.npy",
+      "video_4.npy",
+      "video_2.npy",
+      "video_1.npy"
+    ],
+    "good": [
+      "video_3.npy",
+      "video_1.npy",
+      "video_0.npy"
+    ],
+    "stop": [
+      "video_4.npy",
+      "video_1.npy"
+    ]
+  },
+  "val": {
+    "hello": [
+      "video_0.npy"
+    ],
+    "thankyou": [
+      "video_4.npy"
+    ],
+    "yes": [
+      "video_1.npy"
+    ],
+    "no": [
+      "video_2.npy"
+    ],
+    "help": [
+      "video_7.npy",
+      "video_10.npy"
+    ],
+    "please": [
+      "video_0.npy"
+    ],
+    "sorry": [
+      "video_5.npy"
+    ],
+    "teacher": [
+      "video_3.npy"
+    ],
+    "student": [
+      "video_5.npy"
+    ],
+    "book": [
+      "video_4.npy"
+    ],
+    "computer": [
+      "video_2.npy",
+      "video_10.npy"
+    ],
+    "learn": [
+      "video_4.npy"
+    ],
+    "need": [
+      "video_5.npy"
+    ],
+    "good": [
+      "video_7.npy"
+    ],
+    "stop": [
+      "video_2.npy"
+    ]
+  },
+  "test": {
+    "hello": [
+      "video_1.npy"
+    ],
+    "thankyou": [
+      "video_3.npy"
+    ],
+    "yes": [
+      "video_8.npy"
+    ],
+    "no": [
+      "video_1.npy"
+    ],
+    "help": [
+      "video_3.npy",
+      "video_13.npy"
+    ],
+    "please": [
+      "video_5.npy"
+    ],
+    "sorry": [
+      "video_6.npy"
+    ],
+    "teacher": [
+      "video_7.npy"
+    ],
+    "student": [
+      "video_1.npy"
+    ],
+    "book": [
+      "video_2.npy"
+    ],
+    "computer": [
+      "video_8.npy",
+      "video_9.npy"
+    ],
+    "learn": [
+      "video_6.npy"
+    ],
+    "need": [
+      "video_3.npy"
+    ],
+    "good": [
+      "video_5.npy"
+    ],
+    "stop": [
+      "video_0.npy"
+    ]
+  }
+}
