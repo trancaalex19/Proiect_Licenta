@@ -17,7 +17,7 @@ Rulare (din rădăcina proiectului, cu venv activat):
     python -m src.data.record_samples --seconds 5         # altă durată pentru toate cuvintele
 
 Taste: SPAȚIU = start / pauză, r = șterge ultima înregistrare, s = sari peste cuvânt,
-       v = altă variantă în ghid, m = oglindește avatarul, q = ieșire
+       v = alt semnatar în ghid, m = oglindește videoclipul, l = încetinit, q = ieșire
 """
 import argparse
 import os
@@ -262,7 +262,7 @@ def main():
                 if word_idx < len(plan):
                     guide.set_target(plan[word_idx][0])
                 state, message = 'paused', "Cuvant sarit. Apasa SPATIU."
-            elif key in (ord('v'), ord('m')):
+            elif key in (ord('v'), ord('m'), ord('l')):
                 guide.handle_key(key)
 
     cap.release()

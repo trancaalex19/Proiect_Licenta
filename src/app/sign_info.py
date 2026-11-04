@@ -1,89 +1,112 @@
 """
-Informații despre cele 15 semne ASL: ce înseamnă în română și cum se execută.
+Informații despre cele 15 semne ASL: ce înseamnă în română și ce face fiecare mână.
 Descrierile sunt pentru o persoană dreptace (stângacii inversează rolul mâinilor).
-Semnele au variante regionale; animația din ghid arată un semnatar real din WLASL.
+Semnele au variante regionale; ghidul arată videoclipul unui semnatar real din WLASL.
 
-Cheia opțională 'example' fixează videoclipul afișat implicit (un fișier din
-data/processed_keypoints/<cuvânt>/). Fără ea, ghidul alege exemplul pe care
-modelul îl recunoaște cu cea mai mare încredere.
+Câmpuri:
+  'right' / 'left' = ce face mâna dreaptă / stângă (semne în care mâinile au roluri diferite)
+  'both'           = ce fac ambele mâini (semne în care fac același lucru)
+  'then'           = a doua parte a unui semn compus
+  'note'           = sfat, de obicei diferența față de un semn ușor de confundat
+  'example'        = (opțional) videoclipul afișat implicit, un fișier din
+                     data/processed_keypoints/<cuvânt>/. Fără el, ghidul alege exemplul
+                     pe care modelul îl recunoaște cu cea mai mare încredere.
 """
+
+RESTING = 'Nu participă: stă jos, relaxată.'
 
 SIGN_INFO = {
     'hello': {
         'meaning': 'Salut / Bună ziua',
-        'how': 'Mâna dreaptă deschisă, cu degetele lipite, lângă tâmplă. '
-               'Mișc-o în afară și ușor înainte, ca un salut militar.',
+        'right': 'Palma deschisă, degetele lipite, lângă tâmplă. Se mișcă în afară și ușor '
+                 'înainte, ca un salut militar.',
+        'left': RESTING,
     },
     'thankyou': {
         'meaning': 'Mulțumesc',
-        'how': 'Mâna deschisă, cu vârful degetelor atingând bărbia. '
-               'Coboară mâna înainte, spre persoana căreia îi mulțumești, cu palma în sus.',
+        'right': 'Palma deschisă, vârful degetelor atinge bărbia. Coboară înainte, spre '
+                 'persoana căreia îi mulțumești, și se termină cu palma în sus.',
+        'left': RESTING,
     },
     'yes': {
         'meaning': 'Da',
-        'how': 'Fă pumn. Îndoaie pumnul din încheietură în sus și în jos de câteva ori, '
-               'ca un cap care spune „da”.',
+        'right': 'Pumn, în fața pieptului. Îndoaie pumnul din încheietură în sus și în jos de '
+                 'câteva ori, ca un cap care spune „da”.',
+        'left': RESTING,
+        'note': 'Diferența față de NEED: aici mâna e pumn strâns, nu arătătorul îndoit.',
     },
     'no': {
         'meaning': 'Nu',
-        'how': 'Arătătorul și mijlociul întinse, deasupra degetului mare. '
-               'Închide-le de două ori pe degetul mare, ca un cioc care se închide.',
+        'right': 'Arătătorul și mijlociul întinse și lipite, deasupra degetului mare. '
+                 'Le închide pe degetul mare de două ori, ca un cioc care se închide.',
+        'left': RESTING,
     },
     'help': {
         'meaning': 'Ajutor / A ajuta',
-        'how': 'Mâna stângă deschisă, cu palma în sus. Pune pe ea pumnul drept, cu degetul mare '
-               'în sus, și ridică ambele mâini împreună.',
+        'right': 'Pumn cu degetul mare în sus, așezat pe palma stângă.',
+        'left': 'Palma deschisă, în sus, sub pumnul drept. Ridică pumnul: ambele mâini urcă împreună.',
+        'note': 'Diferența față de GOOD: aici dreapta e pumn și mâinile urcă; nu pornește de la bărbie.',
     },
     'please': {
         'meaning': 'Te rog',
-        'how': 'Palma dreaptă deschisă pe piept. Fă cercuri pe piept.',
+        'right': 'Palma DESCHISĂ, lipită de piept. Face cercuri pe piept.',
+        'left': RESTING,
+        'note': 'Diferența față de SORRY e doar forma mâinii: aici palma e deschisă.',
     },
     'sorry': {
         'meaning': 'Îmi pare rău',
-        'how': 'Pumnul drept pe piept. Fă cercuri pe piept.',
+        'right': 'PUMN, lipit de piept. Face cercuri pe piept.',
+        'left': RESTING,
+        'note': 'Diferența față de PLEASE e doar forma mâinii: aici mâna e pumn.',
     },
     'teacher': {
         'meaning': 'Profesor',
-        'how': 'Ambele mâini cu degetele strânse lângă tâmple; împinge-le înainte de două ori '
-               '(„a preda”). Apoi palmele deschise, față în față, coboară de-a lungul corpului '
-               '(semnul pentru „persoană”).',
+        'both': 'Degetele strânse, cu vârfurile atingându-se, lângă tâmple. Se împing '
+                'înainte de două ori („a preda”).',
+        'then': 'Ambele palme deschise, față în față, coboară de-a lungul corpului („persoană”).',
     },
     'student': {
         'meaning': 'Student / Elev',
-        'how': 'Fă semnul pentru „learn” (a învăța), apoi semnul pentru „persoană”: '
-               'palmele deschise, față în față, coboară de-a lungul corpului.',
+        'right': 'Întâi „learn”: degetele „iau” ceva din palma stângă (se strâng) și mâna urcă la frunte.',
+        'left': 'Palma deschisă, în sus, în fața corpului, cât timp dreapta „ia” din ea.',
+        'then': 'Ambele palme deschise, față în față, coboară de-a lungul corpului („persoană”).',
     },
     'book': {
         'meaning': 'Carte',
-        'how': 'Palmele lipite în fața ta, ca o carte închisă. Deschide-le, păstrând '
-               'marginile degetelor mici lipite, ca și cum ai deschide o carte.',
+        'both': 'Palmele lipite în fața ta, ca o carte închisă. Se deschid ca o carte; '
+                'marginile degetelor mici rămân lipite.',
     },
     'computer': {
         'meaning': 'Calculator',
-        'how': 'Mâna dreaptă în formă de „C”. Mișc-o în arcuri mici pe antebrațul stâng, '
-               'de la încheietură spre cot. În WLASL apar și alte variante (mâna lângă tâmplă, '
-               'ambele mâini ridicate): apasă v ca să le vezi.',
+        'right': 'Degetele curbate în forma literei „C”. Se mișcă în arcuri mici pe antebrațul '
+                 'stâng, de la încheietură spre cot.',
+        'left': 'Antebrațul ținut orizontal în fața corpului, nemișcat.',
+        'note': 'În WLASL apar și alte variante (mâna lângă tâmplă, ambele mâini ridicate): '
+                'apasă v ca să le vezi.',
         # WLASL amestecă 3 variante pentru „computer”; afișăm varianta descrisă mai sus
         'example': 'video_7.npy',
     },
     'learn': {
         'meaning': 'A învăța',
-        'how': 'Mâna stângă deschisă, cu palma în sus. Cu mâna dreaptă „iei” ceva din palmă '
-               '(degetele se strâng) și duci mâna la frunte.',
+        'right': 'Degetele deschise, pe palma stângă, „iau” ceva (se strâng) și mâna urcă la frunte.',
+        'left': 'Palma deschisă, în sus, în fața corpului, nemișcată.',
     },
     'need': {
         'meaning': 'A avea nevoie',
-        'how': 'Arătătorul drept îndoit ca un cârlig, cu palma în jos. '
-               'Coboară mâna din încheietură de câteva ori.',
+        'right': 'Doar ARĂTĂTORUL, îndoit ca un cârlig, cu palma în jos, în fața pieptului. '
+                 'Coboară din încheietură de câteva ori.',
+        'left': RESTING,
+        'note': 'Diferența față de YES: aici e arătătorul îndoit, nu pumnul.',
     },
     'good': {
         'meaning': 'Bun / Bine',
-        'how': 'Mâna dreaptă deschisă, cu vârful degetelor la bărbie. Coboar-o și '
-               'pune-o, cu palma în sus, pe palma stângă.',
+        'right': 'Palma deschisă, vârful degetelor la bărbie. Coboară și se așază, cu palma '
+                 'în sus, pe palma stângă.',
+        'left': 'Palma deschisă, în sus, în fața corpului; primește mâna dreaptă.',
     },
     'stop': {
         'meaning': 'Stop / Oprește-te',
-        'how': 'Mâna stângă deschisă, cu palma în sus. Lovește-o scurt, perpendicular, '
-               'cu marginea mâinii drepte (degetul mic în jos).',
+        'right': 'Palma verticală, cu degetul mic în jos. Lovește scurt, perpendicular, palma stângă.',
+        'left': 'Palma deschisă, în sus, în fața corpului, nemișcată.',
     },
 }

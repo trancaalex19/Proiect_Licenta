@@ -19,10 +19,17 @@ WLASL_JSON = os.path.join(DATA_DIR, 'WLASL_v0.3.json')
 RAW_VIDEOS_DIR = os.path.join(DATA_DIR, 'raw_videos')
 KEYPOINTS_DIR = os.path.join(DATA_DIR, 'processed_keypoints')
 SPLITS_FILE = os.path.join(DATA_DIR, 'splits.json')
+# Videoclipuri eliminate și exemple făcute cu mâna stângă (lista 'mirrored', oglindite la încărcare)
+CLEANING_LOG_FILE = os.path.join(DATA_DIR, 'cleaning_log.json')
+# Ce mp4 corespunde fiecărui video_<i>.npy (scris de extract_features.py; folosit de ghid)
+VIDEO_INDEX_FILE = os.path.join(DATA_DIR, 'video_index.json')
 # Înregistrări proprii (src/data/record_samples.py): folosite DOAR la antrenare,
 # niciodată în validare sau test, ca evaluarea să rămână pe semnatari WLASL nevăzuți.
 RECORDED_DIR = os.path.join(DATA_DIR, 'recorded_keypoints')
 USE_RECORDED_DATA = True
+# Test live (src/app/live_test.py): semne întregi decupate din camera live, cu cuvântul
+# cerut. NU se folosesc niciodată la antrenare; măsoară acuratețea reală la utilizare.
+LIVE_TEST_DIR = os.path.join(DATA_DIR, 'live_test')
 MODEL_PATH = os.path.join('models', 'sign_language_model.h5')
 
 # Folderul local cu toate mp4-urile WLASL descărcate (folosit doar de organize_videos.py)

@@ -4,7 +4,8 @@ Antrenarea finală a modelului LSTM.
   - date: videoclipurile originale din data/splits.json (train / val / test)
   - preprocesare: src/features/preprocessing.py (aceeași ca la predicția live)
   - augmentare: aleatoare la fiecare epocă, DOAR pe train
-  - val: early stopping, reducerea learning rate-ului și alegerea modelului salvat
+  - epoci: număr fix (FIXED_EPOCHS, ales prin validare încrucișată), sau, dacă e None,
+    oprire timpurie, reducerea learning rate-ului și alegerea modelului după val
   - test: evaluat o singură dată, la final
 
 Rulare (din rădăcina proiectului):
@@ -25,6 +26,10 @@ from src.ml.model import build_model
 
 MAX_EPOCHS = 300
 BATCH_SIZE = 16
+# Număr fix de epoci, ales din curba validării încrucișate (src/ml/cross_validate.py):
+# modelul final se antrenează exact cum a fost evaluat acolo. Setul de val (17 videoclipuri)
+# e prea mic pentru o oprire timpurie sigură; se raportează doar. None = oprire timpurie pe val.
+FIXED_EPOCHS = 150
 
 
 def main():
@@ -50,21 +55,26 @@ def main():
     model = build_model()
     model.summary()
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
-    callbacks = [
-        ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=20, min_lr=1e-5, verbose=1),
-        EarlyStopping(monitor='val_loss', patience=60, restore_best_weights=True),
-        ModelCheckpoint(MODEL_PATH, monitor='val_loss', save_best_only=True),
-    ]
+    if FIXED_EPOCHS:
+        callbacks, epochs = [], FIXED_EPOCHS   # ca în validarea încrucișată
+    else:
+        callbacks, epochs = [
+            ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=20, min_lr=1e-5, verbose=1),
+            EarlyStopping(monitor='val_loss', patience=60, restore_best_weights=True),
+            ModelCheckpoint(MODEL_PATH, monitor='val_loss', save_best_only=True),
+        ], MAX_EPOCHS
 
     # 3. Antrenare: augmentare aleatoare la fiecare epocă, doar pe train
-    print("Începem antrenarea modelului...")
+    print(f"Începem antrenarea modelului ({f'{epochs} epoci fixe' if FIXED_EPOCHS else 'oprire timpurie pe val'})...")
     model.fit(
         AugmentedSequence(X_train, y_train, batch_size=BATCH_SIZE, seed=SEED),
         validation_data=(X_val, to_categorical(y_val, NUM_CLASSES)),
-        epochs=MAX_EPOCHS,
+        epochs=epochs,
         callbacks=callbacks,
         verbose=2,
     )
+    if FIXED_EPOCHS:
+        model.save(MODEL_PATH)
 
     # 4. Evaluare finală, o singură dată, pe setul de test
     val_acc = np.mean(np.argmax(model.predict(X_val, verbose=0), axis=1) == y_val)
@@ -77,7 +87,8 @@ def main():
                                 target_names=ACTIONS, zero_division=0))
     print("Matrice de confuzie (rânduri = adevărat, coloane = prezis):")
     print(confusion_matrix(y_test, y_pred, labels=range(NUM_CLASSES)))
-    print(f"\nCel mai bun model (după val_loss) a fost salvat în {MODEL_PATH}")
+    saved = f"după {FIXED_EPOCHS} epoci" if FIXED_EPOCHS else "cel mai bun după val_loss"
+    print(f"\nModelul ({saved}) a fost salvat în {MODEL_PATH}")
 
 
 if __name__ == '__main__':

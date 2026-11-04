@@ -8,11 +8,30 @@ import os
 import numpy as np
 from tensorflow.keras.utils import Sequence, to_categorical
 
-from src.config import ACTIONS, KEYPOINTS_DIR, NUM_CLASSES, RECORDED_DIR, SEQUENCE_LENGTH, SPLITS_FILE
-from src.features.augmentation import augment
+from src.config import (ACTIONS, CLEANING_LOG_FILE, KEYPOINTS_DIR, NUM_CLASSES, RECORDED_DIR,
+                        SEQUENCE_LENGTH, SPLITS_FILE)
+from src.features.augmentation import augment, mirror
 from src.features.preprocessing import FEATURE_DIM, preprocess
 
 LABEL_MAP = {action: i for i, action in enumerate(ACTIONS)}
+
+
+def mirrored_files():
+    """
+    Exemplele făcute cu mâna stângă (semnatar stângaci), ca perechi (cuvânt, fișier).
+    Sunt listate în data/cleaning_log.json ('mirrored', găsite cu src.data.check_handedness)
+    și se oglindesc la încărcare, ca toate exemplele să fie de dreptaci, ca utilizatorul.
+    """
+    if not os.path.exists(CLEANING_LOG_FILE):
+        return set()
+    with open(CLEANING_LOG_FILE, 'r', encoding='utf-8') as f:
+        return {(e['word'], e['file']) for e in json.load(f).get('mirrored', [])}
+
+
+def load_example(action, path, mirrored, fill_hand_gaps=True):
+    """Încarcă și preprocesează un exemplu; îl oglindește dacă e făcut cu mâna stângă."""
+    features = preprocess(np.load(path), fill_hand_gaps=fill_hand_gaps)
+    return mirror(features) if (action, os.path.basename(path)) in mirrored else features
 
 
 def load_splits():
@@ -26,10 +45,10 @@ def load_splits():
 def load_split(splits, split_name, fill_hand_gaps=True):
     """Încarcă și preprocesează videoclipurile ORIGINALE dintr-un set. Returnează (X, y)."""
     X, y = [], []
+    mirrored = mirrored_files()
     for action in ACTIONS:
         for file in splits[split_name][action]:
-            raw = np.load(os.path.join(KEYPOINTS_DIR, action, file))
-            X.append(preprocess(raw, fill_hand_gaps=fill_hand_gaps))
+            X.append(load_example(action, os.path.join(KEYPOINTS_DIR, action, file), mirrored, fill_hand_gaps))
             y.append(LABEL_MAP[action])
     return np.array(X, dtype=np.float32), np.array(y)
 
@@ -48,9 +67,10 @@ def load_recorded(fill_hand_gaps=True):
     seturi goale dacă nu există înregistrări.
     """
     X, y = [], []
+    mirrored = mirrored_files()
     for action in ACTIONS:
         for path in recorded_files(action):
-            X.append(preprocess(np.load(path), fill_hand_gaps=fill_hand_gaps))
+            X.append(load_example(action, path, mirrored, fill_hand_gaps))
             y.append(LABEL_MAP[action])
     if not X:
         return np.zeros((0, SEQUENCE_LENGTH, FEATURE_DIM), dtype=np.float32), np.zeros(0, dtype=int)
@@ -76,7 +96,8 @@ class AugmentedSequence(Sequence):
         idx = self.order[i * self.batch_size:(i + 1) * self.batch_size]
         batch = self.X[idx]
         if self.augment_data:
-            batch = np.stack([augment(x, self.rng, **self.augment_options) for x in batch])
+            # augmentarea recalculează forma mâinilor; păstrăm câte trăsături aveam (ex. 112 fără ea)
+            batch = np.stack([augment(x, self.rng, **self.augment_options)[:, :x.shape[-1]] for x in batch])
         return batch, to_categorical(self.y[idx], num_classes=NUM_CLASSES)
 
     def on_epoch_end(self):

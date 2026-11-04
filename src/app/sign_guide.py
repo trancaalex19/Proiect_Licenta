@@ -1,215 +1,163 @@
 """
-Ghid de semne: arată cuvântul-țintă, ce înseamnă, cum se execută și un avatar
-animat (față, trunchi, brațe, mâini și urma mișcării) reconstruit din
-keypoints-urile unui videoclip real din setul de date.
+Ghid de semne: arată cuvântul-țintă, ce înseamnă, un videoclip real din setul
+de date (WLASL) cu un semnatar care face semnul și, sub el, ce face fiecare mână.
 
-Exemplul afișat pentru fiecare cuvânt este cel pe care modelul antrenat îl
-recunoaște cu cea mai mare încredere (cel mai „tipic”); celelalte videoclipuri
-sunt disponibile ca variante (tasta v), pentru că multe semne ASL au variante.
+Videoclipul pornește de când semnatarul ridică mâinile (timpul mort de la
+început și sfârșit e tăiat) și se repetă în buclă. Pe încheieturile semnatarului
+apar marcajele D (mâna dreaptă) și S (mâna stângă), cu aceleași culori ca
+textul de sub videoclip. Implicit e afișat oglindit, ca să poată fi copiat ca
+într-o oglindă. Exemplul afișat pentru
+fiecare cuvânt este cel pe care modelul antrenat îl recunoaște cu cea mai mare
+încredere (cel mai „tipic”); celelalte videoclipuri sunt disponibile ca variante
+(tasta v), pentru că multe semne ASL au variante.
 
 Pornește automat împreună cu src.app.live_predict, unde afișează și dacă
 modelul a recunoscut semnul tău („CORECT”). Poate rula și singur:
     python -m src.app.sign_guide
 
-Taste: n / p = cuvântul următor / anterior, v = altă variantă,
-       m = oglindește avatarul, q = ieșire
+Taste: n / p = cuvântul următor / anterior, v = alt semnatar (variantă),
+       m = oglindește (ca într-o oglindă), l = încetinit, q = ieșire
 """
 import json
 import os
+import time
 
 import cv2
-import mediapipe as mp
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from src.app.sign_info import SIGN_INFO
-from src.config import ACTIONS, KEYPOINTS_DIR, MODEL_PATH, SPLITS_FILE
-from src.features.preprocessing import fill_gaps, preprocess
+from src.config import ACTIONS, KEYPOINTS_DIR, MODEL_PATH, RAW_VIDEOS_DIR, SPLITS_FILE, VIDEO_INDEX_FILE
+from src.features.preprocessing import fill_gaps
+from src.ml.dataset import load_example, mirrored_files
+from src.ml.model import fit_inputs
 
-WINDOW_NAME = 'Ghid semne (n/p = cuvant, v = varianta, m = oglinda)'
-WIDTH, HEIGHT = 560, 800
-PANEL_X, PANEL_Y, PANEL_W, PANEL_H = 10, 120, WIDTH - 20, 400   # zona avatarului
-UPSAMPLE = 3          # cadre interpolate între două cadre originale (mișcare fluidă)
-HOLD_FRAMES = 20      # pauză la finalul animației, înainte de reluare
-TRAIL_FRAMES = 18     # lungimea urmei lăsate de mâini
-REAL_FACE_RATIO = 1.22  # înălțime / lățime pentru conturul feței MediaPipe la o față reală
+WINDOW_NAME = 'Ghid semne (n/p = cuvant, v = varianta, m = oglinda, l = lent)'
+WIDTH, HEIGHT = 560, 880
+PANEL_X, PANEL_Y, PANEL_W, PANEL_H = 10, 120, WIDTH - 20, 360   # zona videoclipului
+SLOW_SPEED = 0.5      # viteza în modul încetinit (tasta l)
+HOLD_SECONDS = 0.8    # pauză pe ultimul cadru, înainte de reluare
+MARGIN_SECONDS = 0.3  # cât se păstrează înainte / după ce mâinile sunt vizibile
 
 # Culori BGR (OpenCV)
 BG, PANEL_BG = (30, 30, 30), (48, 48, 48)
-SKIN, BODY, TORSO = (205, 205, 205), (190, 190, 190), (70, 70, 70)
-RIGHT_HAND, LEFT_HAND = (16, 117, 245), (230, 160, 40)
+RIGHT_HAND_BGR, LEFT_HAND_BGR = (16, 117, 245), (230, 160, 40)
 # Culori RGB (PIL)
 WHITE, GRAY, ORANGE, GREEN = (255, 255, 255), (170, 170, 170), (245, 117, 16), (60, 200, 90)
+RIGHT_HAND_RGB, LEFT_HAND_RGB = RIGHT_HAND_BGR[::-1], LEFT_HAND_BGR[::-1]
 
-# Indici în vectorul brut de 1662 (vezi src/features/keypoints.py)
-_POSE_END, _FACE_END = 33 * 4, 33 * 4 + 468 * 3
-_LH_END = _FACE_END + 21 * 3
-
-_fm = mp.solutions.face_mesh_connections
-FACE_CONNECTIONS = list(_fm.FACEMESH_FACE_OVAL | _fm.FACEMESH_LIPS | _fm.FACEMESH_LEFT_EYE |
-                        _fm.FACEMESH_RIGHT_EYE | _fm.FACEMESH_LEFT_EYEBROW | _fm.FACEMESH_RIGHT_EYEBROW)
-FACE_OVAL = sorted({i for c in _fm.FACEMESH_FACE_OVAL for i in c})
-CHIN = 152
-HAND_CONNECTIONS = list(mp.solutions.hands_connections.HAND_CONNECTIONS)
-PALM = [0, 1, 5, 9, 13, 17]
-ARMS = [(11, 13), (13, 15), (12, 14), (14, 16)]
+# În vectorul brut de 1662 (vezi src/features/keypoints.py), mâinile sunt la final
+_HANDS_START = 33 * 4 + 468 * 3
+_LH_START, _RH_START = _HANDS_START, _HANDS_START + 21 * 3
+# Marcajele de pe videoclip: (literă, unde începe mâna în vectorul brut, culoare)
+HAND_MARKERS = (('D', _RH_START, RIGHT_HAND_BGR), ('S', _LH_START, LEFT_HAND_BGR))
 
 
 # ---------------------------------------------------------------------------
-# Pregătirea unui exemplu (o singură dată, la pornire)
+# Videoclipul unui exemplu
 # ---------------------------------------------------------------------------
 
-def _fill_edges(points, present):
-    """Completează începutul / sfârșitul cu cel mai apropiat cadru detectat."""
-    idx = np.where(present)[0]
-    if len(idx) == 0:
-        return points, present
-    points = points.copy()
-    points[:idx[0]] = points[idx[0]]
-    points[idx[-1] + 1:] = points[idx[-1]]
-    return points, np.ones_like(present)
+def _wrist_track(raw, hand_start, n_frames):
+    """
+    Poziția încheieturii unei mâini (x, y normalizate) în fiecare cadru video, sau None.
+    Keypoints-urile salvate sunt len(raw) cadre eșantionate uniform din videoclip, deci
+    poziția într-un cadru video se interpolează între cele două eșantioane vecine.
+    """
+    hand = raw[:, hand_start:hand_start + 21 * 3].reshape(len(raw), 21, 3)[:, :, :2]
+    present = np.any(hand != 0, axis=(1, 2))
+    hand, present = fill_gaps(hand, present)
+    wrist = hand[:, 0]
+    track = []
+    for j in range(n_frames):
+        k = j * (len(raw) - 1) / max(n_frames - 1, 1)   # poziția fracționară între eșantioane
+        k0 = int(k)
+        k1, w = min(k0 + 1, len(raw) - 1), k - k0
+        if present[k0] and present[k1]:
+            track.append(wrist[k0] * (1 - w) + wrist[k1] * w)
+        elif present[k0] and w < 0.5:
+            track.append(wrist[k0])
+        elif present[k1] and w >= 0.5:
+            track.append(wrist[k1])
+        else:
+            track.append(None)
+    return track
 
 
-def _upsample(points, present, factor):
-    """Interpolare liniară în timp (doar între cadre în care partea e prezentă)."""
-    n = len(points)
-    if n < 2:
-        return points, present
-    ts = np.linspace(0, n - 1, (n - 1) * factor + 1)
-    i0 = np.minimum(np.floor(ts).astype(int), n - 2)
-    w = (ts - i0)[:, None, None]
-    i1 = i0 + 1
-    both = present[i0] & present[i1]
-    nearest = np.where(w[:, 0, 0] < 0.5, i0, i1)
-    out = np.where(both[:, None, None], points[i0] * (1 - w) + points[i1] * w, points[nearest])
-    return out, np.where(both, True, present[nearest])
+class VideoClip:
+    """Cadrele unui videoclip WLASL, redimensionate pentru panou și fără timp mort,
+    plus poziția fiecărei mâini a semnatarului (pentru marcajele D / S).
+    `left_handed`: semnatarul folosește mâna stângă; videoclipul se afișează întors,
+    ca semnatarul să apară dreptaci, iar marcajele D / S se schimbă între ele."""
 
+    def __init__(self, path, raw, left_handed=False):
+        self.left_handed = left_handed
+        cap = cv2.VideoCapture(path)
+        self.fps = cap.get(cv2.CAP_PROP_FPS) or 25.0
+        frames = []
+        while True:
+            ret, frame = cap.read()
+            if not ret:
+                break
+            frames.append(frame)
+        cap.release()
+        if not frames:
+            self.frames, self.wrists, self.duration = [], [], 0.0
+            return
 
-class Clip:
-    """Un exemplu gata de desenat: coordonate în pixeli ale panoului, pe cadre."""
+        # Unde ajunge un punct normalizat (x, y) din videoclip în panou
+        h, w = frames[0].shape[:2]
+        self.scale = min(PANEL_W / w, PANEL_H / h)
+        self.size = (int(w * self.scale), int(h * self.scale))
+        self.offset = ((PANEL_W - self.size[0]) // 2, (PANEL_H - self.size[1]) // 2)
+        tracks = {label: _wrist_track(raw, start, len(frames)) for label, start, _ in HAND_MARKERS}
 
-    def __init__(self, raw):
-        T = len(raw)
-        pose = raw[:, :_POSE_END].reshape(T, 33, 4)[:, :, :2]
-        face = raw[:, _POSE_END:_FACE_END].reshape(T, 468, 3)[:, :, :2]
-        lh = raw[:, _FACE_END:_LH_END].reshape(T, 21, 3)[:, :, :2]
-        rh = raw[:, _LH_END:].reshape(T, 21, 3)[:, :, :2]
-        present = {k: np.any(v != 0, axis=(1, 2)) for k, v in
-                   (('pose', pose), ('face', face), ('lh', lh), ('rh', rh))}
+        # Timpul mort: keypoints-urile salvate (raw) sunt cadre eșantionate uniform din
+        # tot videoclipul, deci prima / ultima mână detectată se poate duce înapoi în timp.
+        hands = np.where(np.any(raw[:, _HANDS_START:] != 0, axis=1))[0]
+        start, end = 0, len(frames)
+        if len(frames) > 1 and len(hands) >= 3:
+            positions = np.linspace(0, len(frames) - 1, len(raw))
+            margin = int(MARGIN_SECONDS * self.fps)
+            start = max(0, int(positions[hands[0]]) - margin)
+            end = min(len(frames), int(positions[hands[-1]]) + margin + 1)
 
-        # Golurile scurte se completează (mâinile nu mai „clipesc”)
-        lh, present['lh'] = fill_gaps(lh, present['lh'])
-        rh, present['rh'] = fill_gaps(rh, present['rh'])
-        pose, present['pose'] = _fill_edges(*fill_gaps(pose, present['pose'], 1.0))
-        face, present['face'] = _fill_edges(*fill_gaps(face, present['face'], 1.0))
+        self.frames = [self._fit(f) for f in frames[start:end]]
+        # Pentru fiecare cadru: {literă: (x, y) în pixeli ai panoului} pentru mâinile vizibile
+        self.wrists = [{label: self._to_panel(tracks[label][j]) for label in tracks
+                        if tracks[label][j] is not None} for j in range(start, end)]
+        self.duration = len(self.frames) / self.fps
 
-        # Fără timp mort: de la prima la ultima detecție a unei mâini
-        active = np.where(present['lh'] | present['rh'])[0]
-        if len(active) >= 3:
-            s, e = max(0, active[0] - 2), min(T, active[-1] + 3)
-            pose, face, lh, rh = pose[s:e], face[s:e], lh[s:e], rh[s:e]
-            present = {k: v[s:e] for k, v in present.items()}
+    def _to_panel(self, point):
+        return (int(point[0] * self.size[0] + self.offset[0]), int(point[1] * self.size[1] + self.offset[1]))
 
-        # Proporții: coordonatele MediaPipe sunt normalizate separat pe lățime și înălțime;
-        # raportul de aspect al videoclipului se estimează din forma feței.
-        aspect = 4 / 3
-        if present['face'].any():
-            oval = face[present['face']][:, FACE_OVAL]
-            ratio = np.median((np.ptp(oval[:, :, 1], axis=1) + 1e-6) / (np.ptp(oval[:, :, 0], axis=1) + 1e-6))
-            aspect = float(np.clip(ratio / REAL_FACE_RATIO, 1.0, 2.0))
-        for arr in (pose, face, lh, rh):
-            arr[:, :, 0] *= aspect
+    def _fit(self, frame):
+        """Redimensionează păstrând proporțiile și centrează pe fundalul panoului."""
+        resized = cv2.resize(frame, self.size, interpolation=cv2.INTER_AREA)
+        panel = np.full((PANEL_H, PANEL_W, 3), PANEL_BG, dtype=np.uint8)
+        x, y = self.offset
+        panel[y:y + self.size[1], x:x + self.size[0]] = resized
+        return panel
 
-        # Mișcare fluidă
-        pose, present['pose'] = _upsample(pose, present['pose'], UPSAMPLE)
-        face, present['face'] = _upsample(face, present['face'], UPSAMPLE)
-        lh, present['lh'] = _upsample(lh, present['lh'], UPSAMPLE)
-        rh, present['rh'] = _upsample(rh, present['rh'], UPSAMPLE)
-
-        # Încadrare constantă: lățimea umerilor = ~32% din panou, centrat pe umeri
-        shoulders = pose[:, [11, 12]]
-        center = np.median(shoulders.mean(axis=1), axis=0)
-        shoulder_w = np.median(np.linalg.norm(shoulders[:, 0] - shoulders[:, 1], axis=1))
-        scale = 0.32 * PANEL_W / max(shoulder_w, 1e-3)
-        visible = np.concatenate([face.reshape(-1, 2), pose[:, 11:23].reshape(-1, 2),
-                                  lh[present['lh']].reshape(-1, 2), rh[present['rh']].reshape(-1, 2)])
-        lo, hi = visible.min(axis=0), visible.max(axis=0)
-        fit = min(0.92 * PANEL_W / max(hi[0] - lo[0], 1e-3), 0.92 * PANEL_H / max(hi[1] - lo[1], 1e-3))
-        scale = min(scale, fit)
-        offset_x = PANEL_W / 2 - center[0] * scale
-        offset_y = PANEL_H / 2 - (lo[1] + hi[1]) / 2 * scale
-
-        def px(a):
-            return np.stack([a[..., 0] * scale + offset_x, a[..., 1] * scale + offset_y], axis=-1)
-
-        self.pose, self.face, self.lh, self.rh = px(pose), px(face), px(lh), px(rh)
-        self.present = present
-        self.length = len(self.pose)
-
-
-# ---------------------------------------------------------------------------
-# Desen
-# ---------------------------------------------------------------------------
-
-def _pt(p):
-    return int(round(p[0])), int(round(p[1]))
-
-
-def _draw_hand(panel, hand, color):
-    palm = np.array([_pt(hand[i]) for i in PALM], dtype=np.int32)
-    fill = tuple(int(c * 0.45) for c in color)
-    cv2.fillPoly(panel, [palm], fill, cv2.LINE_AA)
-    for a, b in HAND_CONNECTIONS:
-        cv2.line(panel, _pt(hand[a]), _pt(hand[b]), color, 3, cv2.LINE_AA)
-    for i, p in enumerate(hand):
-        cv2.circle(panel, _pt(p), 5 if i in (4, 8, 12, 16, 20) else 3, color, -1, cv2.LINE_AA)
-
-
-def _draw_trail(panel, hand_track, present, frame, color):
-    """Urma mâinii (centrul palmei) pe ultimele TRAIL_FRAMES cadre, care se estompează."""
-    if not present[frame]:
-        return  # fără urme rătăcite după ce mâna a coborât din cadru
-    start = max(0, frame - TRAIL_FRAMES)
-    for t in range(start + 1, frame + 1):
-        if present[t] and present[t - 1]:
-            alpha = (t - start) / TRAIL_FRAMES
-            c = tuple(int(PANEL_BG[i] + (color[i] - PANEL_BG[i]) * alpha * 0.8) for i in range(3))
-            a = hand_track[t - 1][PALM].mean(axis=0)
-            b = hand_track[t][PALM].mean(axis=0)
-            cv2.line(panel, _pt(a), _pt(b), c, 3, cv2.LINE_AA)
-
-
-def draw_avatar(clip, frame, mirrored=False):
-    panel = np.full((PANEL_H, PANEL_W, 3), PANEL_BG, dtype=np.uint8)
-    pose, face = clip.pose[frame], clip.face[frame]
-
-    # Trunchi (umeri -> șolduri) și gât
-    torso = np.array([_pt(pose[i]) for i in (11, 12, 24, 23)], dtype=np.int32)
-    cv2.fillPoly(panel, [torso], TORSO, cv2.LINE_AA)
-    neck = (pose[11] + pose[12]) / 2
-    cv2.line(panel, _pt(neck), _pt(face[CHIN]), BODY, 6, cv2.LINE_AA)
-    cv2.line(panel, _pt(pose[11]), _pt(pose[12]), BODY, 6, cv2.LINE_AA)
-
-    # Față: contur, ochi, sprâncene, gură
-    for a, b in FACE_CONNECTIONS:
-        cv2.line(panel, _pt(face[a]), _pt(face[b]), SKIN, 2, cv2.LINE_AA)
-
-    # Urma mișcării, apoi brațele și mâinile
-    _draw_trail(panel, clip.rh, clip.present['rh'], frame, RIGHT_HAND)
-    _draw_trail(panel, clip.lh, clip.present['lh'], frame, LEFT_HAND)
-    for a, b in ARMS:
-        cv2.line(panel, _pt(pose[a]), _pt(pose[b]), BODY, 8, cv2.LINE_AA)
-    for i in (11, 12, 13, 14):
-        cv2.circle(panel, _pt(pose[i]), 6, BODY, -1, cv2.LINE_AA)
-    # Antebrațul continuă până la încheietura mâinii detectate
-    for hand, key, elbow, color in ((clip.rh, 'rh', 14, RIGHT_HAND), (clip.lh, 'lh', 13, LEFT_HAND)):
-        if clip.present[key][frame]:
-            cv2.line(panel, _pt(pose[elbow + 2]), _pt(hand[frame][0]), BODY, 8, cv2.LINE_AA)
-            _draw_hand(panel, hand[frame], color)
-
-    if mirrored:
-        panel = cv2.flip(panel, 1)
-    return panel
+    def frame_at(self, seconds, mirrored=False):
+        """
+        Cadrul de afișat după `seconds` secunde de redare (ultimul cadru în pauza de final),
+        cu marcajele D / S pe încheieturile semnatarului.
+        """
+        j = min(int(seconds * self.fps), len(self.frames) - 1)
+        flip = mirrored != self.left_handed   # un semnatar stângaci, întors, arată ca un dreptaci
+        frame = cv2.flip(self.frames[j], 1) if flip else self.frames[j].copy()
+        for label, _, color in HAND_MARKERS:
+            # La un stângaci întors, mâna lui stângă face rolul mâinii drepte (D)
+            source = {'D': 'S', 'S': 'D'}[label] if self.left_handed else label
+            if source in self.wrists[j]:
+                x, y = self.wrists[j][source]
+                if flip:
+                    x = PANEL_W - 1 - x
+                cv2.circle(frame, (x, y), 13, color, -1, cv2.LINE_AA)
+                cv2.circle(frame, (x, y), 13, (255, 255, 255), 2, cv2.LINE_AA)
+                cv2.putText(frame, label, (x - 7, y + 6), cv2.FONT_HERSHEY_SIMPLEX, 0.55,
+                            (255, 255, 255), 2, cv2.LINE_AA)
+        return frame
 
 
 # ---------------------------------------------------------------------------
@@ -218,23 +166,36 @@ def draw_avatar(clip, frame, mirrored=False):
 
 def _load_examples(model=None):
     """
-    Pentru fiecare cuvânt: toate videoclipurile originale din train+val, ordonate după
-    încrederea modelului în clasa corectă (cel mai tipic primul) și apoi după cât de
-    des se văd mâinile.
+    Pentru fiecare cuvânt: videoclipurile originale din train+val care există pe disc,
+    ca (cale mp4, keypoints brute, stângaci?), ordonate după încrederea modelului în clasa
+    corectă (cel mai tipic primul) și apoi după cât de des se văd mâinile.
+    Semnatarii stângaci (lista 'mirrored' din data/cleaning_log.json) se evaluează oglindiți,
+    exact ca la antrenare, și se afișează întorși.
     """
+    mirrored = mirrored_files()
     with open(SPLITS_FILE, 'r', encoding='utf-8') as f:
         splits = json.load(f)
+    with open(VIDEO_INDEX_FILE, 'r', encoding='utf-8') as f:
+        video_index = json.load(f)
     if model is None and os.path.exists(MODEL_PATH):
         from tensorflow.keras.models import load_model
         model = load_model(MODEL_PATH)
 
     examples = {}
     for label, action in enumerate(ACTIONS):
-        files = splits['train'][action] + splits['val'][action]
-        raws = [np.load(os.path.join(KEYPOINTS_DIR, action, f)) for f in files]
-        coverage = np.array([np.any(r[:, _FACE_END:] != 0, axis=1).mean() for r in raws])
-        if model is not None:
-            probs = model.predict(np.stack([preprocess(r) for r in raws]), verbose=0)[:, label]
+        files, videos = [], []
+        for npy in splits['train'][action] + splits['val'][action]:
+            video = os.path.join(RAW_VIDEOS_DIR, action, video_index[action].get(npy, ''))
+            if os.path.isfile(video):
+                files.append(npy)
+                videos.append(video)
+        paths = [os.path.join(KEYPOINTS_DIR, action, f) for f in files]
+        raws = [np.load(p) for p in paths]
+        left_handed = [(action, f) in mirrored for f in files]
+        coverage = np.array([np.any(r[:, _HANDS_START:] != 0, axis=1).mean() for r in raws])
+        if model is not None and raws:
+            X = fit_inputs(model, np.stack([load_example(action, p, mirrored) for p in paths]))
+            probs = model.predict(X, verbose=0)[:, label]
         else:
             probs = np.zeros(len(raws))
         order = list(np.lexsort((-coverage, -np.round(probs, 2))))
@@ -243,7 +204,7 @@ def _load_examples(model=None):
         if pinned in files:
             order.remove(files.index(pinned))
             order.insert(0, files.index(pinned))
-        examples[action] = [raws[i] for i in order]
+        examples[action] = [(videos[i], raws[i], left_handed[i]) for i in order]
     return examples
 
 
@@ -281,13 +242,14 @@ class SignGuide:
         self.examples = _load_examples(model)
         self.fonts = {
             'title': _load_font(44, bold=True), 'meaning': _load_font(26),
-            'text': _load_font(20), 'small': _load_font(16),
+            'text': _load_font(19), 'small': _load_font(16), 'label': _load_font(19, bold=True),
         }
         self.index, self.variant = 0, 0
-        self.mirrored = False
+        self.mirrored = True   # implicit ca în oglindă: e mai ușor de copiat
+        self.slow = False
         self._clips = {}
         self._background_key, self._background = None, None
-        self._reset_animation()
+        self._restart()
 
     @property
     def target(self):
@@ -295,13 +257,18 @@ class SignGuide:
 
     @property
     def clip(self):
+        """Videoclipul curent (citit de pe disc o singură dată), sau None dacă nu există."""
+        if not self.examples[self.target]:
+            return None
         key = (self.target, self.variant)
         if key not in self._clips:
-            self._clips[key] = Clip(self.examples[self.target][self.variant])
+            self._clips[key] = VideoClip(*self.examples[self.target][self.variant])
         return self._clips[key]
 
-    def _reset_animation(self):
-        self.frame, self.hold = 0, 0
+    def _restart(self):
+        """Redarea pornește de la început."""
+        self._position = 0.0                   # secunde de videoclip redate
+        self._last_tick = time.perf_counter()
 
     def handle_key(self, key):
         """Procesează o tastă. Returnează True dacă s-a schimbat cuvântul-țintă."""
@@ -309,13 +276,15 @@ class SignGuide:
             step = 1 if key == ord('n') else -1
             self.index = (self.index + step) % len(ACTIONS)
             self.variant = 0
-            self._reset_animation()
+            self._restart()
             return True
-        if key == ord('v'):
+        if key == ord('v') and self.examples[self.target]:
             self.variant = (self.variant + 1) % len(self.examples[self.target])
-            self._reset_animation()
+            self._restart()
         elif key == ord('m'):
             self.mirrored = not self.mirrored
+        elif key == ord('l'):
+            self.slow = not self.slow
         return False
 
     def _render_background(self, prediction, message=None):
@@ -329,18 +298,38 @@ class SignGuide:
         draw.text((WIDTH - 90, 25), f"{self.index + 1}/{len(ACTIONS)}", font=f['meaning'], fill=GRAY)
 
         y = PANEL_Y + PANEL_H + 8
-        draw.text((20, y), "● mâna dreaptă", font=f['small'], fill=RIGHT_HAND[::-1])
-        draw.text((160, y), "● mâna stângă", font=f['small'], fill=LEFT_HAND[::-1])
         n_var = len(self.examples[self.target])
-        side = "oglindit" if self.mirrored else "văzut din față"
-        draw.text((300, y), f"varianta {self.variant + 1}/{n_var} · {side}", font=f['small'], fill=GRAY)
+        side = "oglindit" if self.mirrored else "normal"
+        speed = "încetinit" if self.slow else "viteză normală"
+        draw.text((20, y), f"semnatar {self.variant + 1}/{n_var} (v)  ·  {side} (m)  ·  {speed} (l)",
+                  font=f['small'], fill=GRAY)
+        y += 22
+        if n_var and self.examples[self.target][self.variant][2]:
+            hint = "Semnatar stângaci: videoclipul e întors, ca să-l copiezi cu mâna dreaptă."
+        elif self.mirrored:
+            hint = "Oglindit: copiază-l ca în oglindă; mâna ta dreaptă face ce face D."
+        else:
+            hint = "Normal: semnatarul te privește, mâna lui dreaptă (D) e în stânga ecranului."
+        draw.text((20, y), hint, font=f['small'], fill=GRAY)
 
-        y += 32
-        draw.text((20, y), "Cum se face:", font=f['text'], fill=GRAY)
-        y += 28
-        for line in _wrap(draw, info['how'], f['text'], WIDTH - 40):
-            draw.text((20, y), line, font=f['text'], fill=WHITE)
-            y += 26
+        # Ce face fiecare mână (culorile se potrivesc cu marcajele D / S de pe videoclip)
+        y += 30
+        sections = ([('Ambele mâini', info['both'], WHITE)] if 'both' in info else
+                    [('D · Mâna dreaptă', info['right'], RIGHT_HAND_RGB),
+                     ('S · Mâna stângă', info['left'], LEFT_HAND_RGB)])
+        if 'then' in info:
+            sections.append(('Apoi, ambele mâini', info['then'], WHITE))
+        for title, text, color in sections:
+            draw.text((20, y), title, font=f['label'], fill=color)
+            y += 25
+            for line in _wrap(draw, text, f['text'], WIDTH - 40):
+                draw.text((20, y), line, font=f['text'], fill=WHITE)
+                y += 24
+            y += 8
+        if 'note' in info:
+            for line in _wrap(draw, info['note'], f['small'], WIDTH - 40):
+                draw.text((20, y), line, font=f['small'], fill=ORANGE)
+                y += 21
 
         bar_top = HEIGHT - 70
         if message is not None:
@@ -355,36 +344,43 @@ class SignGuide:
             draw.text((20, bar_top + 18), f"Modelul vede: {prediction or '—'}", font=f['meaning'], fill=GRAY)
         return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
 
+    def _video_frame(self):
+        """Avansează redarea după timpul real scurs și returnează cadrul curent."""
+        now = time.perf_counter()
+        self._position += (now - self._last_tick) * (SLOW_SPEED if self.slow else 1.0)
+        self._last_tick = now
+        clip = self.clip
+        if clip is None or not clip.frames:
+            return None
+        if self._position > clip.duration + HOLD_SECONDS:
+            self._position = 0.0
+        return clip.frame_at(self._position, self.mirrored)
+
     def render(self, prediction=None, message=None):
-        key = (self.target, self.variant, self.mirrored, prediction, message)
+        key = (self.target, self.variant, self.mirrored, self.slow, prediction, message)
         if key != self._background_key:
             self._background_key, self._background = key, self._render_background(prediction, message)
         image = self._background.copy()
-        image[PANEL_Y:PANEL_Y + PANEL_H, PANEL_X:PANEL_X + PANEL_W] = \
-            draw_avatar(self.clip, min(self.frame, self.clip.length - 1), self.mirrored)
+        frame = self._video_frame()
+        if frame is not None:
+            image[PANEL_Y:PANEL_Y + PANEL_H, PANEL_X:PANEL_X + PANEL_W] = frame
         return image
 
     def set_target(self, action):
-        """Setează direct cuvântul-țintă (folosit de scriptul de înregistrare)."""
+        """Setează direct cuvântul-țintă (folosit de înregistrare și de testul live)."""
         self.index, self.variant = ACTIONS.index(action), 0
-        self._reset_animation()
+        self._restart()
 
     def show(self, prediction=None, message=None):
-        """Desenează fereastra și avansează animația cu un cadru. `message` înlocuiește bara de jos."""
+        """Desenează fereastra. `message` înlocuiește bara de jos."""
         cv2.imshow(WINDOW_NAME, self.render(prediction, message))
-        if self.frame < self.clip.length - 1:
-            self.frame += 1
-        elif self.hold < HOLD_FRAMES:
-            self.hold += 1
-        else:
-            self._reset_animation()
 
 
 def main():
     guide = SignGuide()
     while True:
         guide.show()
-        key = cv2.waitKey(40) & 0xFF  # ~25 cadre/secundă
+        key = cv2.waitKey(15) & 0xFF
         if key == ord('q') or cv2.getWindowProperty(WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1:
             break
         guide.handle_key(key)

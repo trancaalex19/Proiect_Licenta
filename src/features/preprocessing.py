@@ -1,6 +1,6 @@
 """
 Transformă secvența brută (cadre x 1662) în trăsături compacte și normalizate
-(cadre x 112), folosite de model. Aceeași funcție se aplică la antrenare și live.
+(cadre x 192), folosite de model. Aceeași funcție se aplică la antrenare și live.
 
 Pași:
   1. Se elimină fața; se păstrează 13 puncte din partea superioară a corpului
@@ -14,10 +14,15 @@ Pași:
      indicator de prezență (0/1).
   4. Se elimină cadrele fără mâini de la început și sfârșit (timp mort) și
      secvența se reeșantionează la SEQUENCE_LENGTH cadre.
+  5. Forma fiecărei mâini (hand_shape): degetele față de încheietură, la scara
+     palmei. La scara umerilor, diferența dintre pumn și palmă e mică; aici e clară.
 
-Aranjarea trăsăturilor într-un cadru (112 valori):
-  [55 puncte x (x, y)] = 110 valori, apoi [prezență mâna stângă, prezență mâna dreaptă]
+Aranjarea trăsăturilor într-un cadru (192 de valori):
+  [55 puncte x (x, y)] = 110 valori, apoi [prezență mâna stângă, prezență mâna dreaptă],
+  apoi forma mâinii stângi (20 x 2) și a mâinii drepte (20 x 2) = 80 de valori.
   Punctele: 13 pose (POSE_LANDMARKS), 21 mâna stângă, 21 mâna dreaptă.
+  Forma mâinilor se calculează mereu din puncte (from_points), deci rămâne
+  corectă și după augmentare.
 """
 import numpy as np
 
@@ -37,22 +42,48 @@ N_HAND = 21
 N_POINTS = N_POSE + 2 * N_HAND               # 55
 LH_SLICE = slice(N_POSE, N_POSE + N_HAND)     # punctele mâinii stângi
 RH_SLICE = slice(N_POSE + N_HAND, N_POINTS)   # punctele mâinii drepte
-FEATURE_DIM = N_POINTS * 2 + 2                # 112
+BASE_DIM = N_POINTS * 2 + 2                   # 112: poziții + prezența mâinilor
+SHAPE_DIM = 2 * (N_HAND - 1) * 2              # 80: forma celor două mâini
+FEATURE_DIM = BASE_DIM + SHAPE_DIM            # 192
+
+# Încheietura (0) și baza degetelor arătător / mijlociu / inelar / mic: dau mărimea palmei
+_KNUCKLES = [5, 9, 13, 17]
+_SHAPE_CLIP = 3.0  # mâna văzută din profil poate da valori extreme
 
 # Perechi stânga/dreapta în POSE_LANDMARKS (poziții în listă), pentru oglindire
 POSE_MIRROR_PAIRS = [(1, 2), (3, 4), (5, 6), (7, 8), (9, 10), (11, 12)]
 
 
+def hand_shape(hand, present):
+    """
+    Forma mâinii, independentă de poziția și mărimea ei în imagine: cele 20 de puncte
+    ale degetelor față de încheietură, împărțite la mărimea palmei (distanța medie
+    încheietură - baza degetelor). (T, 21, 2) -> (T, 20, 2); 0 când mâna lipsește.
+    Diferențiază semne cu aceeași mișcare dar altă formă a mâinii (ex. pumn / palmă).
+    """
+    relative = hand[:, 1:] - hand[:, :1]
+    palm = np.linalg.norm(relative[:, [k - 1 for k in _KNUCKLES]], axis=2).mean(axis=1)
+    ok = present & (palm > 1e-6)
+    shape = np.zeros_like(relative)
+    shape[ok] = np.clip(relative[ok] / palm[ok, None, None], -_SHAPE_CLIP, _SHAPE_CLIP)
+    return shape
+
+
 def to_points(features):
-    """(T, 112) -> puncte (T, 55, 2) și prezența mâinilor (T, 2)."""
+    """(T, 192) -> puncte (T, 55, 2) și prezența mâinilor (T, 2). Forma mâinilor se ignoră:
+    se recalculează din puncte în from_points."""
     points = features[:, :N_POINTS * 2].reshape(-1, N_POINTS, 2)
-    presence = features[:, N_POINTS * 2:]
+    presence = features[:, N_POINTS * 2:BASE_DIM]
     return points, presence
 
 
 def from_points(points, presence):
-    """Inversul lui to_points."""
-    return np.concatenate([points.reshape(len(points), -1), presence], axis=1).astype(np.float32)
+    """Inversul lui to_points: adaugă forma mâinilor, calculată din punctele lor."""
+    present = presence > 0.5
+    shapes = [hand_shape(points[:, LH_SLICE], present[:, 0]), hand_shape(points[:, RH_SLICE], present[:, 1])]
+    T = len(points)
+    return np.concatenate([points.reshape(T, -1), presence] + [s.reshape(T, -1) for s in shapes],
+                          axis=1).astype(np.float32)
 
 
 def fill_gaps(points, present, max_gap_ratio=0.5):

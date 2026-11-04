@@ -4,12 +4,20 @@ Recunoaștere live de pe cameră, împreună cu ghidul de semne.
 Folosește exact aceeași extragere (src/features/keypoints.py) și aceeași
 preprocesare (src/features/preprocessing.py) ca la antrenare.
 
+Implicit, semnele se decupează întregi (src/app/segmenter.py): ridici mâinile
+peste linia desenată, faci semnul, cobori mâinile, iar modelul clasifică tot
+semnul o singură dată. Așa primește același tip de exemplu ca la antrenare.
+Cu --continuu se folosește vechiul mod: o predicție la fiecare cadru, pe o
+fereastră glisantă de BUFFER_FRAMES cadre.
+
 Rulare (din rădăcina proiectului, cu venv activat):
     python -m src.app.live_predict               # camera din config + ghidul de semne
     python -m src.app.live_predict --camera 0    # altă cameră (0 = laptop)
     python -m src.app.live_predict --no-guide    # fără ghid
+    python -m src.app.live_predict --continuu    # fereastră glisantă (modul vechi)
 
-Taste: q = ieșire; în ghid: n / p = alt cuvânt-țintă, m = oglindește animația
+Taste: q = ieșire; în ghid: n / p = alt cuvânt-țintă, v = alt semnatar,
+       m = oglindește videoclipul, l = încetinit
 """
 import argparse
 import os
@@ -21,13 +29,14 @@ import mediapipe as mp
 import numpy as np
 from tensorflow.keras.models import load_model
 
+from src.app.segmenter import START_LEVEL, SignSegmenter
 from src.config import ACTIONS, CAMERA_INDEX, MODEL_PATH
 from src.features.keypoints import extract_keypoints
-from src.features.preprocessing import preprocess
+from src.ml.evaluate_live import predict_segment
 
 WINDOW_NAME = 'SignAI - Testare Live (Apasa Q pentru a iesi)'
-BUFFER_FRAMES = 60    # ~2 secunde la 30 fps; la antrenare un exemplu = tot semnul comprimat în 30 de cadre
-THRESHOLD = 0.85      # modelul trebuie să fie 85% sigur pentru a afișa cuvântul
+BUFFER_FRAMES = 60    # doar în modul --continuu: ~2 secunde la 30 fps
+THRESHOLD = 0.85      # în modul --continuu: cuvântul se afișează doar peste acest prag
 DISPLAY_WIDTH = 800   # imaginea camerei e redimensionată la afișare (camera telefonului are rezoluție mare)
 
 # Desenăm doar ce folosește modelul: brațele (umeri, coate, încheieturi) și mâinile.
@@ -35,6 +44,7 @@ DISPLAY_WIDTH = 800   # imaginea camerei e redimensionată la afișare (camera t
 ARM_CONNECTIONS = frozenset((a, b) for a, b in mp.solutions.holistic.POSE_CONNECTIONS
                             if 11 <= a <= 22 and 11 <= b <= 22)
 OK_COLOR, LOST_COLOR = (60, 200, 90), (60, 60, 230)
+SIGN_COLOR = (0, 0, 255)
 
 
 def parse_args():
@@ -42,7 +52,23 @@ def parse_args():
     parser.add_argument('--camera', type=int, default=CAMERA_INDEX,
                         help=f'indexul camerei (implicit {CAMERA_INDEX}, din src/config.py)')
     parser.add_argument('--no-guide', action='store_true', help='nu deschide ghidul de semne')
+    parser.add_argument('--continuu', action='store_true',
+                        help='predicție la fiecare cadru pe o fereastră glisantă (modul vechi)')
     return parser.parse_args()
+
+
+def process_frame(holistic, frame):
+    """Rulează MediaPipe pe un cadru BGR și returnează rezultatele."""
+    image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    image.flags.writeable = False
+    return holistic.process(image)
+
+
+def resize_for_display(image):
+    if image.shape[1] > DISPLAY_WIDTH:
+        scale = DISPLAY_WIDTH / image.shape[1]
+        image = cv2.resize(image, (DISPLAY_WIDTH, int(image.shape[0] * scale)))
+    return image
 
 
 def draw_landmarks(image, results):
@@ -59,7 +85,25 @@ def draw_landmarks(image, results):
         mp.solutions.drawing_utils.draw_landmarks(image, hand, mp.solutions.holistic.HAND_CONNECTIONS)
 
 
-def draw_overlay(image, current_word, probabilities, results, fps):
+def draw_segmenter(image, segmenter, hint="Ridica mainile peste linie, fa semnul, apoi coboara-le"):
+    """Linia de pornire și starea segmentării (repaus / semn în curs)."""
+    h, w = image.shape[:2]
+    line = segmenter.line_y(START_LEVEL)
+    signing = segmenter.state == 'semn'
+    if line is not None and 0 < line < 1:
+        y = int(line * h)
+        color = SIGN_COLOR if signing else (255, 255, 255)
+        for x in range(0, w, 30):  # linie punctată
+            cv2.line(image, (x, y), (min(x + 15, w), y), color, 2, cv2.LINE_AA)
+    if signing:
+        cv2.rectangle(image, (0, 0), (w - 1, h - 1), SIGN_COLOR, 6)
+        cv2.putText(image, f"Semn in curs... {segmenter.elapsed:.1f}s", (10, h - 75),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, SIGN_COLOR, 2, cv2.LINE_AA)
+    else:
+        cv2.putText(image, hint, (10, h - 75), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 2, cv2.LINE_AA)
+
+
+def draw_overlay(image, current_word, probabilities, results, fps, threshold=THRESHOLD):
     """Cuvântul recunoscut, starea mâinilor, FPS și primele 3 predicții."""
     width = image.shape[1]
     cv2.rectangle(image, (0, 0), (width, 40), (245, 117, 16), -1)
@@ -81,7 +125,7 @@ def draw_overlay(image, current_word, probabilities, results, fps):
     for rank, i in enumerate(np.argsort(probabilities)[::-1][:3]):
         y = 70 + rank * 30
         p = probabilities[i]
-        color = (60, 200, 90) if p > THRESHOLD else (255, 255, 255)
+        color = (60, 200, 90) if p > threshold else (255, 255, 255)
         cv2.rectangle(image, (5, y - 18), (5 + int(200 * p), y + 4), (80, 80, 80), -1)
         cv2.putText(image, f"{ACTIONS[i]} {p:.0%}", (10, y),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2, cv2.LINE_AA)
@@ -103,10 +147,12 @@ def main():
     if not cap.isOpened():
         print(f"EROARE: Nu pot deschide camera {args.camera}. Încearcă --camera 0 sau verifică telefonul.")
         return
-    print(f"Folosim camera {args.camera}.")
+    mode = "fereastră glisantă" if args.continuu else "semne întregi"
+    print(f"Folosim camera {args.camera}, mod: {mode}.")
 
-    buffer = []           # ultimele BUFFER_FRAMES cadre brute
-    current_word = ""     # cuvântul recunoscut curent (peste prag)
+    segmenter = SignSegmenter()
+    buffer = []           # modul --continuu: ultimele BUFFER_FRAMES cadre brute
+    current_word = ""     # cuvântul recunoscut curent
     probabilities = None  # ultima ieșire a modelului
     windows_placed = False
     fps, last_time = 0.0, time.perf_counter()
@@ -120,31 +166,29 @@ def main():
             fps = 0.9 * fps + 0.1 / max(now - last_time, 1e-6)  # medie glisantă
             last_time = now
 
-            # Transformăm imaginea pentru MediaPipe
-            image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            image.flags.writeable = False
-            results = holistic.process(image)
-            image.flags.writeable = True
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-
+            results = process_frame(holistic, frame)
+            image = frame.copy()
             draw_landmarks(image, results)  # feedback vizual: doar brațe și mâini
+            keypoints = extract_keypoints(results)
 
-            # Logica de predicție
-            buffer.append(extract_keypoints(results))
-            buffer = buffer[-BUFFER_FRAMES:]
-            hands_visible = results.left_hand_landmarks or results.right_hand_landmarks
-
-            if len(buffer) == BUFFER_FRAMES and hands_visible:
-                features = preprocess(np.array(buffer))  # (30, 112), ca la antrenare
-                probabilities = model.predict(features[np.newaxis], verbose=0)[0]
-                if probabilities.max() > THRESHOLD:
+            if args.continuu:
+                buffer = (buffer + [keypoints])[-BUFFER_FRAMES:]
+                hands_visible = results.left_hand_landmarks or results.right_hand_landmarks
+                if len(buffer) == BUFFER_FRAMES and hands_visible:
+                    probabilities = predict_segment(model, np.array(buffer))
+                    if probabilities.max() > THRESHOLD:
+                        current_word = ACTIONS[int(np.argmax(probabilities))]
+            else:
+                segment = segmenter.update(keypoints, now)
+                if segment is not None:  # semn încheiat: o singură predicție pe tot semnul
+                    probabilities = predict_segment(model, segment)
                     current_word = ACTIONS[int(np.argmax(probabilities))]
 
-            # Afișare (redimensionată pentru camere cu rezoluție mare)
-            if image.shape[1] > DISPLAY_WIDTH:
-                scale = DISPLAY_WIDTH / image.shape[1]
-                image = cv2.resize(image, (DISPLAY_WIDTH, int(image.shape[0] * scale)))
-            draw_overlay(image, current_word, probabilities, results, fps)
+            image = resize_for_display(image)
+            if not args.continuu:
+                draw_segmenter(image, segmenter)
+            draw_overlay(image, current_word, probabilities, results, fps,
+                         threshold=THRESHOLD if args.continuu else 0.5)
             cv2.imshow(WINDOW_NAME, image)
             if guide is not None:
                 guide.show(prediction=current_word)
@@ -156,12 +200,13 @@ def main():
                     cv2.moveWindow(GUIDE_WINDOW, image.shape[1] + 10, 0)
                 windows_placed = True
 
-            key = cv2.waitKey(10) & 0xFF
+            key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):
                 break
             if guide is not None and guide.handle_key(key):
                 # cuvânt-țintă nou: pornim de la zero, ca predicția veche să nu apară drept „CORECT”
                 buffer, current_word, probabilities = [], "", None
+                segmenter.reset()
 
     cap.release()
     cv2.destroyAllWindows()

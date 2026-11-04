@@ -8,11 +8,20 @@ from src.config import NUM_CLASSES, SEQUENCE_LENGTH
 from src.features.preprocessing import FEATURE_DIM
 
 
-def build_model(units=64, dense_units=64, dropout=0.4, l2=1e-4, learning_rate=1e-3):
+def fit_inputs(model, X):
+    """
+    Păstrează din trăsături doar câte așteaptă modelul. Trăsăturile noi se adaugă la
+    final (ex. forma mâinii după primele 112), deci un model mai vechi rămâne utilizabil.
+    """
+    return X[..., :model.input_shape[-1]]
+
+
+def build_model(units=64, dense_units=64, dropout=0.4, l2=1e-4, learning_rate=1e-3,
+                feature_dim=FEATURE_DIM):
     """LSTM mic, potrivit pentru ~100 de videoclipuri de antrenare."""
     reg = regularizers.l2(l2)
     model = Sequential([
-        Input(shape=(SEQUENCE_LENGTH, FEATURE_DIM)),
+        Input(shape=(SEQUENCE_LENGTH, feature_dim)),
         LSTM(units, return_sequences=True, kernel_regularizer=reg),
         Dropout(dropout),
         LSTM(units, kernel_regularizer=reg),

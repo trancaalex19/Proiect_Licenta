@@ -7,13 +7,14 @@ câte o secvență brută (SEQUENCE_LENGTH x 1662) per video.
 Rulare (din rădăcina proiectului):
     python -m src.data.extract_features
 """
+import json
 import os
 
 import cv2
 import mediapipe as mp
 import numpy as np
 
-from src.config import KEYPOINTS_DIR, RAW_VIDEOS_DIR, SEQUENCE_LENGTH
+from src.config import KEYPOINTS_DIR, RAW_VIDEOS_DIR, SEQUENCE_LENGTH, VIDEO_INDEX_FILE
 from src.features.keypoints import extract_keypoints, to_fixed_length
 
 
@@ -43,6 +44,7 @@ def main():
     actions = [d for d in os.listdir(RAW_VIDEOS_DIR) if os.path.isdir(os.path.join(RAW_VIDEOS_DIR, d))]
     print(f"Am găsit {len(actions)} clase (cuvinte): {actions}")
 
+    video_index = {}  # cuvânt -> {video_<i>.npy: fișierul video sursă}
     with mp.solutions.holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
         for action in actions:
             action_raw_path = os.path.join(RAW_VIDEOS_DIR, action)
@@ -50,6 +52,7 @@ def main():
             os.makedirs(action_out_path, exist_ok=True)
 
             video_files = sorted(f for f in os.listdir(action_raw_path) if f.endswith(('.mp4', '.avi', '.mov')))
+            video_index[action] = {f"video_{i}.npy": f for i, f in enumerate(video_files)}
             for video_idx, video_file in enumerate(video_files):
                 sequence = video_to_sequence(os.path.join(action_raw_path, video_file), holistic)
                 if sequence is None:
@@ -59,6 +62,10 @@ def main():
                 np.save(save_path, sequence)
                 print(f"Procesat: {action} / {video_file} -> salvat în {save_path}")
 
+    # Corespondența .npy -> mp4 (numele video_<i> depind de ordinea alfabetică a mp4-urilor)
+    with open(VIDEO_INDEX_FILE, 'w', encoding='utf-8') as f:
+        json.dump(video_index, f, indent=2)
+    print(f"Corespondența .npy -> video a fost salvată în {VIDEO_INDEX_FILE}")
     print("Procesarea tuturor videoclipurilor s-a încheiat cu succes!")
 
 

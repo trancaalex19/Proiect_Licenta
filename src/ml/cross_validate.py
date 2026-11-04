@@ -20,6 +20,7 @@ from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.utils import to_categorical
 
 from src.config import NUM_CLASSES, SEED
+from src.features.preprocessing import BASE_DIM
 from src.ml.dataset import AugmentedSequence, load_recorded, load_split, load_splits
 from src.ml.model import build_model
 
@@ -51,9 +52,27 @@ DEFAULT_EPOCHS = 150
 # proprii (adăugate doar la antrenarea fiecărui fold; evaluarea rămâne pe semnatari WLASL):
 #   fără înregistrări proprii     68.4% ± 12.9%
 #   cu înregistrări proprii       73.4% ± 6.2%   <- folosite (USE_RECORDED_DATA în config)
+#
+# Runda 5 (aceleași date, cu înregistrări proprii): forma mâinii (src/features/preprocessing.py,
+# hand_shape). Testul live a arătat confuzii între semne cu aceeași mișcare și altă formă
+# a mâinii (need->yes, sorry->please, help->good). 'hand_shape': False = doar primele
+# BASE_DIM trăsături (varianta veche). 78 videoclipuri train+val (după eliminarea no/video_1).
+#   fără forma mâinii             73.1% ± 4.4%   (max 75.0% la ep229)
+#   cu forma mâinii               78.2% ± 7.9%   (max 82.7% la ep157)  <- folosită (implicit)
+#
+# Runda 6: + 10 înregistrări proprii pentru „computer” (avea 0) și 10 pentru „stop”;
+# curba pe epoci alege numărul fix de epoci pentru train_lstm (FIXED_EPOCHS).
+#   cu forma mâinii               80.1% ± 5.6%   (ep100=80.8%, ep150=80.8%, ep200=84.6%;
+#                                                 max 85.9% la ep168 -> FIXED_EPOCHS = 170)
+#
+# --- Runda 7: date schimbate (rundele de mai sus NU sunt comparabile): 10 videoclipuri „help”
+# --- proaste eliminate (69 train+val), 3 exemple stângace oglindite (cleaning_log 'mirrored'),
+# --- înregistrări proprii completate până la 24 de exemple pe cuvânt (275 în total).
+#   cu forma mâinii               83.3% ± 10.5%  (ep50=83.3%, ep100=81.2%, ep150=87.0%, ep200=82.6%;
+#                                                 max 88.4% la ep153 -> FIXED_EPOCHS = 150)
 CONFIGS = {
-    'fără înregistrări proprii': {'type': 'lstm', 'augment': {}, 'epochs': 250, 'use_recorded': False},
-    'cu înregistrări proprii': {'type': 'lstm', 'augment': {}, 'epochs': 250, 'use_recorded': True},
+    'cu forma mâinii': {'type': 'lstm', 'augment': {}, 'epochs': 250, 'use_recorded': True,
+                        'hand_shape': True},
 }
 
 
@@ -65,7 +84,7 @@ def run_logreg(X_tr, y_tr, X_ev, y_ev):
 
 def run_lstm(X_tr, y_tr, X_ev, y_ev, augment_options, epochs, seed):
     tf.keras.utils.set_random_seed(seed)
-    model = build_model()
+    model = build_model(feature_dim=X_tr.shape[-1])
     train_seq = AugmentedSequence(X_tr, y_tr, seed=seed, augment_data=augment_options is not None,
                                   augment_options=augment_options)
     history = model.fit(train_seq, epochs=epochs, verbose=0,
@@ -99,6 +118,8 @@ def main():
             X_rec, y_rec = load_recorded(fill)
         else:
             X_rec, y_rec = X[:0], y[:0]
+        if not cfg.get('hand_shape', True):
+            X, X_rec = X[..., :BASE_DIM], X_rec[..., :BASE_DIM]
         scores, curves = [], []
         for k, (tr, ev) in enumerate(folds):
             X_tr = np.concatenate([X[tr], X_rec])

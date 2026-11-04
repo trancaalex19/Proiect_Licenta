@@ -1,5 +1,5 @@
 {
-  "description": "Videoclipuri WLASL eliminate manual din setul de date (2026-11-02). Pentru fiecare: mp4 șters din data/raw_videos, .npy corespunzător șters din data/processed_keypoints, setul în care era înainte de reîmpărțire. Completează câmpul \"reason\" (ex.: semn greșit, altă variantă, semnatar ieșit din cadru).",
+  "description": "Videoclipuri WLASL eliminate manual din setul de date (2026-11-02). Pentru fiecare: mp4 șters din data/raw_videos, .npy corespunzător șters din data/processed_keypoints, setul în care era înainte de reîmpărțire. Completează câmpul \"reason\" (ex.: semn greșit, altă variantă, semnatar ieșit din cadru). Lista 'mirrored': exemple făcute cu mâna stângă (găsite cu python -m src.data.check_handedness și verificate vizual); se oglindesc la încărcare, ca toate exemplele să fie de dreptaci.",
   "removed": [
     {
       "word": "good",
@@ -44,11 +44,88 @@
       "reason": ""
     },
     {
+      "word": "help",
+      "mp4": "27207.mp4",
+      "npy": "video_1.npy",
+      "old_split": "train",
+      "reason": "videoclip prost (eliminat de utilizator)"
+    },
+    {
+      "word": "help",
+      "mp4": "27209.mp4",
+      "npy": "video_3.npy",
+      "old_split": "test",
+      "reason": "videoclip prost (eliminat de utilizator)"
+    },
+    {
+      "word": "help",
+      "mp4": "27214.mp4",
+      "npy": "video_5.npy",
+      "old_split": "train",
+      "reason": "videoclip prost (eliminat de utilizator)"
+    },
+    {
+      "word": "help",
+      "mp4": "27215.mp4",
+      "npy": "video_6.npy",
+      "old_split": "train",
+      "reason": "videoclip prost (eliminat de utilizator)"
+    },
+    {
+      "word": "help",
+      "mp4": "27216.mp4",
+      "npy": "video_7.npy",
+      "old_split": "val",
+      "reason": "videoclip prost (eliminat de utilizator)"
+    },
+    {
+      "word": "help",
+      "mp4": "27217.mp4",
+      "npy": "video_8.npy",
+      "old_split": "train",
+      "reason": "videoclip prost (eliminat de utilizator)"
+    },
+    {
+      "word": "help",
+      "mp4": "27221.mp4",
+      "npy": "video_9.npy",
+      "old_split": "train",
+      "reason": "videoclip prost (eliminat de utilizator)"
+    },
+    {
+      "word": "help",
+      "mp4": "65889.mp4",
+      "npy": "video_10.npy",
+      "old_split": "val",
+      "reason": "videoclip prost (eliminat de utilizator)"
+    },
+    {
+      "word": "help",
+      "mp4": "65891.mp4",
+      "npy": "video_12.npy",
+      "old_split": "train",
+      "reason": "videoclip prost (eliminat de utilizator)"
+    },
+    {
+      "word": "help",
+      "mp4": "69364.mp4",
+      "npy": "video_13.npy",
+      "old_split": "test",
+      "reason": "videoclip prost (eliminat de utilizator)"
+    },
+    {
       "word": "learn",
       "mp4": "32612.mp4",
       "npy": "video_5.npy",
       "old_split": "val",
       "reason": ""
+    },
+    {
+      "word": "no",
+      "mp4": "38525.mp4",
+      "npy": "video_1.npy",
+      "old_split": "test",
+      "reason": "semn incorect"
     },
     {
       "word": "no",
@@ -217,6 +294,33 @@
       "npy": "video_11.npy",
       "old_split": "test",
       "reason": ""
+    }
+  ],
+  "split_changes": [
+    "no/video_1.npy era singurul 'no' din test; video_0.npy a fost mutat din train în test (random.Random(42))",
+    "help: 10 videoclipuri eliminate (inclusiv toate din val și test); cele 4 rămase reîmpărțite cu random.Random(42): test=['video_2.npy'], val=['video_11.npy'], train=['video_4.npy', 'video_0.npy']"
+  ],
+  "mirrored": [
+    {
+      "word": "learn",
+      "file": "video_2.npy",
+      "source": "WLASL",
+      "split": "train",
+      "reason": "semnatar stângaci: mâna stângă ia din palma dreaptă și urcă la frunte"
+    },
+    {
+      "word": "learn",
+      "file": "rec_20261102_182039_870.npy",
+      "source": "proprie",
+      "split": "train",
+      "reason": "înregistrare făcută cu mâna stângă (copiată după exemplul stângaci din ghid)"
+    },
+    {
+      "word": "stop",
+      "file": "rec_20261102_182053_662.npy",
+      "source": "proprie",
+      "split": "train",
+      "reason": "înregistrare făcută cu mâna stângă (palma stângă lovește palma dreaptă)"
     }
   ]
 }
