@@ -1,5 +1,13 @@
 """
-Copiază videoclipurile WLASL pentru cele 15 cuvinte în data/raw_videos/<cuvânt>/.
+Copiază videoclipurile WLASL pentru cuvintele din ACTIONS în data/raw_videos/<cuvânt>/.
+
+O clasă poate aduna mai multe glose WLASL (WLASL_GLOSSES). La clasele care unesc mai
+multe glose, numele fișierului începe cu gloss-ul (ex.: i_12345.mp4, pain_67890.mp4),
+ca să se vadă de unde vine fiecare videoclip.
+
+Clasele care au deja folder în data/raw_videos/ NU se ating: acolo sunt date curățate
+manual (videoclipuri proaste șterse, vezi data/cleaning_log.json), iar o recopiere le-ar
+aduce înapoi. Pentru a recopia o clasă, șterge-i întâi folderul.
 
 Rulare (din rădăcina proiectului):
     python -m src.data.organize_videos
@@ -10,58 +18,68 @@ import shutil
 
 from src.config import ACTIONS, RAW_VIDEOS_DIR, WLASL_JSON, WLASL_VIDEOS_SOURCE
 
-JSON_FILE = WLASL_JSON
-VIDEOS_SOURCE_FOLDER = WLASL_VIDEOS_SOURCE  # schimbă calea în src/config.py
-OUTPUT_FOLDER = RAW_VIDEOS_DIR
+# Glosele WLASL din care se formează fiecare clasă (implicit: gloss-ul cu numele clasei)
+WLASL_GLOSSES = {
+    'thankyou': ['thank you'],
+    'hurt': ['hurt', 'pain'],
+    'sorethroat': ['sore throat'],
+}
 
-# Cuvintele scrise exact cum apar în WLASL ('thank you' are spațiu; folderul e 'thankyou')
-WLASL_GLOSS = {'thankyou': 'thank you'}
-TARGET_WORDS = [WLASL_GLOSS.get(a, a) for a in ACTIONS]
+
+def glosses_for(action):
+    return WLASL_GLOSSES.get(action, [action])
+
 
 def organize_dataset():
-    if not os.path.exists(JSON_FILE):
-        print(f"EROARE: Nu găsesc fișierul {JSON_FILE}. Pune-l în folderul data/!")
+    if not os.path.exists(WLASL_JSON):
+        print(f"EROARE: Nu găsesc fișierul {WLASL_JSON}. Pune-l în folderul data/!")
         return
 
-    if not os.path.exists(VIDEOS_SOURCE_FOLDER):
-        print(f"EROARE: Folderul sursă {VIDEOS_SOURCE_FOLDER} nu există. Modifică calea în cod!")
+    if not os.path.exists(WLASL_VIDEOS_SOURCE):
+        print(f"EROARE: Folderul sursă {WLASL_VIDEOS_SOURCE} nu există. Modifică calea în src/config.py!")
         return
 
-    # Citim dicționarul
-    with open(JSON_FILE, 'r', encoding='utf-8') as f:
+    with open(WLASL_JSON, 'r', encoding='utf-8') as f:
         wlasl_data = json.load(f)
 
-    # Creăm structura de foldere
-    os.makedirs(OUTPUT_FOLDER, exist_ok=True)
-    
+    # gloss -> lista de video_id (un gloss poate apărea în mai multe intrări)
+    instances = {}
+    for entry in wlasl_data:
+        instances.setdefault(entry['gloss'], []).extend(i['video_id'] for i in entry['instances'])
+
+    os.makedirs(RAW_VIDEOS_DIR, exist_ok=True)
     total_copiate = 0
 
-    for entry in wlasl_data:
-        gloss = entry['gloss']
-        
-        if gloss in TARGET_WORDS:
-            # Creăm folderul pentru cuvânt (eliminăm spațiile, ex: 'thank you' -> 'thankyou')
-            folder_name = gloss.replace(' ', '')
-            word_folder = os.path.join(OUTPUT_FOLDER, folder_name)
-            os.makedirs(word_folder, exist_ok=True)
-            
-            # Căutăm ID-urile video pentru acest cuvânt
-            for instance in entry['instances']:
-                video_id = instance['video_id']
-                video_filename = f"{video_id}.mp4"
-                
-                src_path = os.path.join(VIDEOS_SOURCE_FOLDER, video_filename)
-                dst_path = os.path.join(word_folder, video_filename)
-                
-                # WLASL nu are mereu TOATE videoclipurile descărcate. Verificăm dacă există.
-                if os.path.exists(src_path):
-                    shutil.copy(src_path, dst_path)
-                    print(f"OK: Salvat {video_filename} în folderul -> {folder_name}")
-                    total_copiate += 1
-                else:
-                    print(f"LIPSĂ: Videoclipul {video_filename} pentru '{gloss}' nu este în arhiva ta.")
+    for action in ACTIONS:
+        word_folder = os.path.join(RAW_VIDEOS_DIR, action)
+        if os.path.isdir(word_folder) and os.listdir(word_folder):
+            print(f"SĂRIT: {action} are deja videoclipuri în {word_folder} (nu se atinge).")
+            continue
 
-    print(f"\nGATA! Am organizat cu succes {total_copiate} videoclipuri pentru cele 15 cuvinte.")
+        glosses = glosses_for(action)
+        prefix = len(glosses) > 1
+        os.makedirs(word_folder, exist_ok=True)
+
+        for gloss in glosses:
+            if gloss not in instances:
+                print(f"EROARE: gloss-ul '{gloss}' (clasa {action}) nu există în {WLASL_JSON}.")
+                continue
+            copiate, lipsa = 0, []
+            for video_id in instances[gloss]:
+                src_path = os.path.join(WLASL_VIDEOS_SOURCE, f"{video_id}.mp4")
+                # WLASL nu are mereu TOATE videoclipurile descărcate
+                if not os.path.exists(src_path):
+                    lipsa.append(video_id)
+                    continue
+                dst_name = f"{gloss.replace(' ', '')}_{video_id}.mp4" if prefix else f"{video_id}.mp4"
+                shutil.copy(src_path, os.path.join(word_folder, dst_name))
+                copiate += 1
+            total_copiate += copiate
+            print(f"OK: {action} <- '{gloss}': {copiate} copiate din {len(instances[gloss])} listate"
+                  + (f"; lipsă din arhivă: {', '.join(lipsa)}" if lipsa else ""))
+
+    print(f"\nGATA! Am copiat {total_copiate} videoclipuri.")
+
 
 if __name__ == "__main__":
     organize_dataset()

@@ -70,6 +70,12 @@ DEFAULT_EPOCHS = 150
 # --- înregistrări proprii completate până la 24 de exemple pe cuvânt (275 în total).
 #   cu forma mâinii               83.3% ± 10.5%  (ep50=83.3%, ep100=81.2%, ep150=87.0%, ep200=82.6%;
 #                                                 max 88.4% la ep153 -> FIXED_EPOCHS = 150)
+#
+# --- Runda 8: vocabular nou de 51 de cuvinte (scenariu la doctor; NU e comparabil cu rundele
+# --- de mai sus, care aveau 15 cuvinte): 195 videoclipuri train+val, 997 înregistrări proprii
+# --- (fiecare cuvânt are cel puțin 24 de exemple), 5 exemple stângace oglindite. Durată ~48 min.
+#   cu forma mâinii               73.8% ± 3.6%   (ep50=73.1%, ep100=73.6%, ep150=74.4%, ep200=75.4%,
+#                                                 ep250=73.8%; max 78.7% la ep213 -> FIXED_EPOCHS = 200)
 CONFIGS = {
     'cu forma mâinii': {'type': 'lstm', 'augment': {}, 'epochs': 250, 'use_recorded': True,
                         'hand_shape': True},

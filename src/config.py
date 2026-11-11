@@ -5,11 +5,26 @@ Căile sunt relative la rădăcina proiectului (scripturile se rulează din răd
 """
 import os
 
-# Cele 15 cuvinte. ORDINEA contează: indexul din listă este eticheta clasei.
+# Cele 51 de cuvinte (scenariul: pacient surd la medicul de familie).
+# 'me' și 'i' sunt clase separate: în ASL au semne diferite.
+# ORDINEA contează: indexul din listă este eticheta clasei.
 ACTIONS = [
-    'hello', 'thankyou', 'yes', 'no', 'help',
-    'please', 'sorry', 'teacher', 'student', 'book',
-    'computer', 'learn', 'need', 'good', 'stop'
+    # dialog
+    'yes', 'no', 'not', 'please', 'thankyou', 'sorry', 'again', 'understand', 'help', 'need',
+    # persoane
+    'me', 'i', 'you', 'my', 'child',
+    # simptome
+    'sick', 'hurt', 'headache', 'sorethroat', 'cough', 'cold', 'hot', 'vomit', 'tired', 'sleep', 'allergy',
+    # corp
+    'head', 'stomach', 'back', 'arm', 'heart',
+    # timp
+    'now', 'yesterday', 'morning', 'night', 'day', 'week', 'month', 'ago', 'since',
+    # cantitate și stare
+    'one', 'two', 'three', 'many', 'better',
+    # tratament
+    'medicine', 'take', 'eat', 'drink', 'water',
+    # întrebări
+    'what',
 ]
 NUM_CLASSES = len(ACTIONS)
 
@@ -33,7 +48,7 @@ LIVE_TEST_DIR = os.path.join(DATA_DIR, 'live_test')
 MODEL_PATH = os.path.join('models', 'sign_language_model.h5')
 
 # Folderul local cu toate mp4-urile WLASL descărcate (folosit doar de organize_videos.py)
-WLASL_VIDEOS_SOURCE = r'C:\Users\tranc\OneDrive\Desktop\dataset licenta\videos'
+WLASL_VIDEOS_SOURCE = r'C:\Desktop\dataset licenta\videos'
 
 # Camera pentru predicția live: 0 = camera laptopului, 1 = telefonul conectat ca webcam
 CAMERA_INDEX = 1

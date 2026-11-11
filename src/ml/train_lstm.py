@@ -27,9 +27,9 @@ from src.ml.model import build_model
 MAX_EPOCHS = 300
 BATCH_SIZE = 16
 # Număr fix de epoci, ales din curba validării încrucișate (src/ml/cross_validate.py):
-# modelul final se antrenează exact cum a fost evaluat acolo. Setul de val (17 videoclipuri)
-# e prea mic pentru o oprire timpurie sigură; se raportează doar. None = oprire timpurie pe val.
-FIXED_EPOCHS = 150
+# modelul final se antrenează exact cum a fost evaluat acolo. Setul de val e prea mic
+# pentru o oprire timpurie sigură; se raportează doar. None = oprire timpurie pe val.
+FIXED_EPOCHS = 200
 
 
 def main():

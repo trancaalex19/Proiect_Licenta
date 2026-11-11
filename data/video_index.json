@@ -1,10 +1,4 @@
 {
-  "hello": {
-    "video_0.npy": "27172.mp4",
-    "video_1.npy": "27173.mp4",
-    "video_2.npy": "27177.mp4",
-    "video_3.npy": "27184.mp4"
-  },
   "thankyou": {
     "video_0.npy": "57655.mp4",
     "video_1.npy": "57656.mp4",
@@ -75,60 +69,6 @@
     "video_5.npy": "53375.mp4",
     "video_6.npy": "66536.mp4"
   },
-  "teacher": {
-    "video_0.npy": "57039.mp4",
-    "video_1.npy": "57040.mp4",
-    "video_2.npy": "57041.mp4",
-    "video_3.npy": "57042.mp4",
-    "video_4.npy": "57044.mp4",
-    "video_5.npy": "57045.mp4",
-    "video_6.npy": "57051.mp4",
-    "video_7.npy": "66593.mp4"
-  },
-  "student": {
-    "video_0.npy": "55337.mp4",
-    "video_1.npy": "55338.mp4",
-    "video_2.npy": "55339.mp4",
-    "video_3.npy": "55340.mp4",
-    "video_4.npy": "55341.mp4",
-    "video_5.npy": "55343.mp4",
-    "video_6.npy": "55348.mp4",
-    "video_7.npy": "69494.mp4"
-  },
-  "book": {
-    "video_0.npy": "07068.mp4",
-    "video_1.npy": "07069.mp4",
-    "video_2.npy": "07070.mp4",
-    "video_3.npy": "07074.mp4",
-    "video_4.npy": "07099.mp4",
-    "video_5.npy": "69241.mp4"
-  },
-  "computer": {
-    "video_0.npy": "12311.mp4",
-    "video_1.npy": "12312.mp4",
-    "video_2.npy": "12313.mp4",
-    "video_3.npy": "12314.mp4",
-    "video_4.npy": "12315.mp4",
-    "video_5.npy": "12316.mp4",
-    "video_6.npy": "12317.mp4",
-    "video_7.npy": "12318.mp4",
-    "video_8.npy": "12319.mp4",
-    "video_9.npy": "12320.mp4",
-    "video_10.npy": "12326.mp4",
-    "video_11.npy": "12327.mp4",
-    "video_12.npy": "12328.mp4",
-    "video_13.npy": "12338.mp4"
-  },
-  "learn": {
-    "video_0.npy": "32604.mp4",
-    "video_1.npy": "32605.mp4",
-    "video_2.npy": "32606.mp4",
-    "video_3.npy": "32607.mp4",
-    "video_4.npy": "32608.mp4",
-    "video_5.npy": "32612.mp4",
-    "video_6.npy": "32616.mp4",
-    "video_7.npy": "66024.mp4"
-  },
   "need": {
     "video_0.npy": "37881.mp4",
     "video_1.npy": "37882.mp4",
@@ -137,23 +77,300 @@
     "video_4.npy": "37886.mp4",
     "video_5.npy": "37894.mp4"
   },
-  "good": {
-    "video_0.npy": "25066.mp4",
-    "video_1.npy": "25067.mp4",
-    "video_2.npy": "25068.mp4",
-    "video_3.npy": "25069.mp4",
-    "video_4.npy": "25070.mp4",
-    "video_5.npy": "25072.mp4",
-    "video_6.npy": "25073.mp4",
-    "video_7.npy": "25076.mp4",
-    "video_8.npy": "65835.mp4",
-    "video_9.npy": "69347.mp4"
+  "again": {
+    "video_0.npy": "01460.mp4",
+    "video_1.npy": "01461.mp4",
+    "video_2.npy": "01462.mp4",
+    "video_3.npy": "01463.mp4",
+    "video_4.npy": "01464.mp4",
+    "video_5.npy": "01471.mp4"
   },
-  "stop": {
-    "video_0.npy": "54922.mp4",
-    "video_1.npy": "54923.mp4",
-    "video_2.npy": "54925.mp4",
-    "video_3.npy": "54928.mp4",
-    "video_4.npy": "54932.mp4"
+  "ago": {
+    "video_0.npy": "01552.mp4",
+    "video_1.npy": "01553.mp4",
+    "video_2.npy": "01564.mp4"
+  },
+  "allergy": {
+    "video_0.npy": "01955.mp4",
+    "video_1.npy": "01960.mp4",
+    "video_2.npy": "01962.mp4",
+    "video_3.npy": "65050.mp4"
+  },
+  "arm": {
+    "video_0.npy": "03337.mp4",
+    "video_1.npy": "03338.mp4",
+    "video_2.npy": "03344.mp4",
+    "video_3.npy": "65094.mp4",
+    "video_4.npy": "69215.mp4"
+  },
+  "back": {
+    "video_0.npy": "04593.mp4",
+    "video_1.npy": "65120.mp4",
+    "video_2.npy": "69218.mp4"
+  },
+  "better": {
+    "video_0.npy": "06066.mp4",
+    "video_1.npy": "06067.mp4",
+    "video_2.npy": "06075.mp4",
+    "video_3.npy": "65179.mp4"
+  },
+  "child": {
+    "video_0.npy": "10444.mp4",
+    "video_1.npy": "10445.mp4",
+    "video_2.npy": "10446.mp4",
+    "video_3.npy": "10447.mp4",
+    "video_4.npy": "10449.mp4",
+    "video_5.npy": "65351.mp4"
+  },
+  "cold": {
+    "video_0.npy": "11622.mp4",
+    "video_1.npy": "11623.mp4",
+    "video_2.npy": "11625.mp4",
+    "video_3.npy": "11627.mp4",
+    "video_4.npy": "11628.mp4",
+    "video_5.npy": "11638.mp4",
+    "video_6.npy": "65377.mp4"
+  },
+  "cough": {
+    "video_0.npy": "13470.mp4",
+    "video_1.npy": "13478.mp4"
+  },
+  "day": {
+    "video_0.npy": "14792.mp4",
+    "video_1.npy": "14793.mp4",
+    "video_2.npy": "14794.mp4",
+    "video_3.npy": "14795.mp4",
+    "video_4.npy": "14796.mp4",
+    "video_5.npy": "14799.mp4",
+    "video_6.npy": "14803.mp4",
+    "video_7.npy": "65444.mp4",
+    "video_8.npy": "69291.mp4"
+  },
+  "drink": {
+    "video_0.npy": "17709.mp4",
+    "video_1.npy": "17710.mp4",
+    "video_2.npy": "17711.mp4",
+    "video_3.npy": "17713.mp4",
+    "video_4.npy": "17734.mp4",
+    "video_5.npy": "65539.mp4",
+    "video_6.npy": "69302.mp4"
+  },
+  "eat": {
+    "video_0.npy": "18323.mp4",
+    "video_1.npy": "18324.mp4",
+    "video_2.npy": "18325.mp4",
+    "video_3.npy": "18335.mp4",
+    "video_4.npy": "65601.mp4",
+    "video_5.npy": "69307.mp4"
+  },
+  "head": {
+    "video_0.npy": "26852.mp4",
+    "video_1.npy": "26853.mp4",
+    "video_2.npy": "26854.mp4",
+    "video_3.npy": "26860.mp4",
+    "video_4.npy": "69362.mp4"
+  },
+  "headache": {
+    "video_0.npy": "26834.mp4",
+    "video_1.npy": "26835.mp4",
+    "video_2.npy": "26836.mp4",
+    "video_3.npy": "26837.mp4",
+    "video_4.npy": "65881.mp4"
+  },
+  "heart": {
+    "video_0.npy": "27042.mp4",
+    "video_1.npy": "27043.mp4",
+    "video_2.npy": "27051.mp4",
+    "video_3.npy": "27056.mp4"
+  },
+  "hot": {
+    "video_0.npy": "28107.mp4",
+    "video_1.npy": "28109.mp4",
+    "video_2.npy": "28110.mp4",
+    "video_3.npy": "28112.mp4",
+    "video_4.npy": "28125.mp4",
+    "video_5.npy": "69368.mp4"
+  },
+  "hurt": {
+    "video_0.npy": "hurt_28454.mp4",
+    "video_1.npy": "pain_40802.mp4",
+    "video_2.npy": "pain_40806.mp4"
+  },
+  "i": {
+    "video_0.npy": "i_28789.mp4",
+    "video_1.npy": "i_28794.mp4",
+    "video_2.npy": "i_66047.mp4"
+  },
+  "many": {
+    "video_0.npy": "34823.mp4",
+    "video_1.npy": "34824.mp4",
+    "video_2.npy": "34825.mp4",
+    "video_3.npy": "34827.mp4",
+    "video_4.npy": "69396.mp4"
+  },
+  "me": {
+    "video_0.npy": "me_35544.mp4",
+    "video_1.npy": "me_35545.mp4",
+    "video_2.npy": "me_35546.mp4"
+  },
+  "medicine": {
+    "video_0.npy": "35452.mp4",
+    "video_1.npy": "35453.mp4",
+    "video_2.npy": "35454.mp4",
+    "video_3.npy": "35456.mp4",
+    "video_4.npy": "35467.mp4",
+    "video_5.npy": "66111.mp4"
+  },
+  "month": {
+    "video_0.npy": "36733.mp4",
+    "video_1.npy": "36734.mp4",
+    "video_2.npy": "36735.mp4",
+    "video_3.npy": "36736.mp4",
+    "video_4.npy": "36741.mp4",
+    "video_5.npy": "66141.mp4"
+  },
+  "morning": {
+    "video_0.npy": "36857.mp4",
+    "video_1.npy": "36858.mp4",
+    "video_2.npy": "36859.mp4",
+    "video_3.npy": "36860.mp4",
+    "video_4.npy": "36866.mp4"
+  },
+  "my": {
+    "video_0.npy": "37469.mp4",
+    "video_1.npy": "37470.mp4",
+    "video_2.npy": "37471.mp4",
+    "video_3.npy": "37477.mp4",
+    "video_4.npy": "69404.mp4"
+  },
+  "night": {
+    "video_0.npy": "38336.mp4",
+    "video_1.npy": "38337.mp4",
+    "video_2.npy": "38338.mp4",
+    "video_3.npy": "38345.mp4"
+  },
+  "not": {
+    "video_0.npy": "38857.mp4",
+    "video_1.npy": "38868.mp4"
+  },
+  "now": {
+    "video_0.npy": "38990.mp4",
+    "video_1.npy": "38991.mp4",
+    "video_2.npy": "38994.mp4",
+    "video_3.npy": "38995.mp4",
+    "video_4.npy": "39006.mp4",
+    "video_5.npy": "69413.mp4"
+  },
+  "one": {
+    "video_0.npy": "39742.mp4",
+    "video_1.npy": "39743.mp4",
+    "video_2.npy": "39744.mp4",
+    "video_3.npy": "39750.mp4",
+    "video_4.npy": "66228.mp4",
+    "video_5.npy": "69421.mp4"
+  },
+  "sick": {
+    "video_0.npy": "51501.mp4",
+    "video_1.npy": "51502.mp4",
+    "video_2.npy": "51503.mp4",
+    "video_3.npy": "51504.mp4",
+    "video_4.npy": "51517.mp4",
+    "video_5.npy": "66475.mp4",
+    "video_6.npy": "69470.mp4"
+  },
+  "since": {
+    "video_0.npy": "51773.mp4",
+    "video_1.npy": "51774.mp4",
+    "video_2.npy": "51775.mp4",
+    "video_3.npy": "66482.mp4",
+    "video_4.npy": "69472.mp4"
+  },
+  "sleep": {
+    "video_0.npy": "52316.mp4",
+    "video_1.npy": "52317.mp4",
+    "video_2.npy": "52318.mp4",
+    "video_3.npy": "52324.mp4",
+    "video_4.npy": "69479.mp4"
+  },
+  "sorethroat": {
+    "video_0.npy": "53340.mp4",
+    "video_1.npy": "53343.mp4"
+  },
+  "stomach": {
+    "video_0.npy": "54878.mp4",
+    "video_1.npy": "66560.mp4"
+  },
+  "take": {
+    "video_0.npy": "56692.mp4",
+    "video_1.npy": "56693.mp4"
+  },
+  "three": {
+    "video_0.npy": "58182.mp4",
+    "video_1.npy": "58183.mp4",
+    "video_2.npy": "58188.mp4",
+    "video_3.npy": "66630.mp4",
+    "video_4.npy": "69508.mp4"
+  },
+  "tired": {
+    "video_0.npy": "58589.mp4",
+    "video_1.npy": "58590.mp4",
+    "video_2.npy": "58591.mp4",
+    "video_3.npy": "58592.mp4",
+    "video_4.npy": "58593.mp4",
+    "video_5.npy": "58600.mp4"
+  },
+  "two": {
+    "video_0.npy": "60220.mp4",
+    "video_1.npy": "60221.mp4",
+    "video_2.npy": "60227.mp4"
+  },
+  "understand": {
+    "video_0.npy": "60545.mp4",
+    "video_1.npy": "60546.mp4",
+    "video_2.npy": "66704.mp4"
+  },
+  "vomit": {
+    "video_0.npy": "61978.mp4",
+    "video_1.npy": "61979.mp4",
+    "video_2.npy": "61982.mp4",
+    "video_3.npy": "61984.mp4"
+  },
+  "water": {
+    "video_0.npy": "62499.mp4",
+    "video_1.npy": "62500.mp4",
+    "video_2.npy": "62501.mp4",
+    "video_3.npy": "62502.mp4",
+    "video_4.npy": "62503.mp4",
+    "video_5.npy": "62510.mp4",
+    "video_6.npy": "66752.mp4"
+  },
+  "week": {
+    "video_0.npy": "62740.mp4",
+    "video_1.npy": "62741.mp4",
+    "video_2.npy": "62752.mp4",
+    "video_3.npy": "66759.mp4"
+  },
+  "what": {
+    "video_0.npy": "62964.mp4",
+    "video_1.npy": "62965.mp4",
+    "video_2.npy": "62968.mp4",
+    "video_3.npy": "62970.mp4",
+    "video_4.npy": "62987.mp4",
+    "video_5.npy": "69531.mp4"
+  },
+  "yesterday": {
+    "video_0.npy": "64304.mp4",
+    "video_1.npy": "64305.mp4",
+    "video_2.npy": "64307.mp4",
+    "video_3.npy": "64309.mp4",
+    "video_4.npy": "66821.mp4"
+  },
+  "you": {
+    "video_0.npy": "64379.mp4",
+    "video_1.npy": "64380.mp4",
+    "video_2.npy": "64381.mp4",
+    "video_3.npy": "64382.mp4",
+    "video_4.npy": "64391.mp4",
+    "video_5.npy": "69547.mp4"
   }
 }

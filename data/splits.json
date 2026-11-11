@@ -1,16 +1,6 @@
 {
   "seed": 42,
   "train": {
-    "hello": [
-      "video_3.npy"
-    ],
-    "thankyou": [
-      "video_6.npy",
-      "video_1.npy",
-      "video_2.npy",
-      "video_5.npy",
-      "video_0.npy"
-    ],
     "yes": [
       "video_10.npy",
       "video_9.npy",
@@ -21,53 +11,37 @@
       "video_8.npy",
       "video_9.npy"
     ],
-    "help": [
-      "video_4.npy",
-      "video_0.npy"
-    ],
+    "not": [],
     "please": [
       "video_1.npy",
       "video_2.npy",
       "video_3.npy",
       "video_6.npy"
     ],
+    "thankyou": [
+      "video_6.npy",
+      "video_1.npy",
+      "video_2.npy",
+      "video_5.npy",
+      "video_0.npy"
+    ],
     "sorry": [
       "video_0.npy",
       "video_2.npy",
       "video_1.npy"
     ],
-    "teacher": [
-      "video_2.npy",
+    "again": [
+      "video_0.npy",
+      "video_4.npy",
       "video_1.npy",
-      "video_6.npy"
+      "video_5.npy"
     ],
-    "student": [
-      "video_6.npy"
+    "understand": [
+      "video_1.npy"
     ],
-    "book": [
-      "video_1.npy",
-      "video_5.npy",
-      "video_3.npy",
+    "help": [
+      "video_4.npy",
       "video_0.npy"
-    ],
-    "computer": [
-      "video_3.npy",
-      "video_7.npy",
-      "video_0.npy",
-      "video_1.npy",
-      "video_11.npy",
-      "video_13.npy",
-      "video_5.npy",
-      "video_6.npy",
-      "video_12.npy",
-      "video_4.npy"
-    ],
-    "learn": [
-      "video_1.npy",
-      "video_2.npy",
-      "video_3.npy",
-      "video_0.npy",
-      "video_7.npy"
     ],
     "need": [
       "video_0.npy",
@@ -75,110 +49,508 @@
       "video_2.npy",
       "video_1.npy"
     ],
-    "good": [
+    "me": [
+      "video_0.npy"
+    ],
+    "i": [
+      "video_1.npy"
+    ],
+    "you": [
+      "video_2.npy",
+      "video_1.npy",
+      "video_5.npy",
+      "video_4.npy"
+    ],
+    "my": [
+      "video_4.npy",
       "video_3.npy",
+      "video_2.npy"
+    ],
+    "child": [
+      "video_2.npy",
+      "video_3.npy",
+      "video_1.npy",
+      "video_5.npy"
+    ],
+    "sick": [
+      "video_4.npy",
+      "video_2.npy",
+      "video_3.npy",
+      "video_5.npy",
+      "video_1.npy"
+    ],
+    "hurt": [
+      "video_0.npy"
+    ],
+    "headache": [
+      "video_3.npy",
+      "video_4.npy",
+      "video_0.npy"
+    ],
+    "sorethroat": [],
+    "cough": [],
+    "cold": [
+      "video_3.npy",
+      "video_1.npy",
+      "video_6.npy",
+      "video_0.npy",
+      "video_5.npy"
+    ],
+    "hot": [
+      "video_2.npy",
+      "video_5.npy",
+      "video_1.npy",
+      "video_4.npy"
+    ],
+    "vomit": [
+      "video_2.npy",
+      "video_1.npy"
+    ],
+    "tired": [
+      "video_1.npy",
+      "video_5.npy",
+      "video_2.npy",
+      "video_3.npy"
+    ],
+    "sleep": [
+      "video_3.npy",
+      "video_2.npy",
+      "video_4.npy"
+    ],
+    "allergy": [
+      "video_1.npy",
+      "video_2.npy"
+    ],
+    "head": [
+      "video_2.npy",
+      "video_4.npy",
+      "video_0.npy"
+    ],
+    "stomach": [],
+    "back": [
+      "video_1.npy"
+    ],
+    "arm": [
+      "video_4.npy",
+      "video_0.npy",
+      "video_2.npy"
+    ],
+    "heart": [
       "video_1.npy",
       "video_0.npy"
     ],
-    "stop": [
+    "now": [
+      "video_3.npy",
+      "video_0.npy",
+      "video_1.npy",
+      "video_5.npy"
+    ],
+    "yesterday": [
       "video_4.npy",
+      "video_1.npy",
+      "video_0.npy"
+    ],
+    "morning": [
+      "video_2.npy",
+      "video_3.npy",
+      "video_4.npy"
+    ],
+    "night": [
+      "video_3.npy",
       "video_1.npy"
+    ],
+    "day": [
+      "video_7.npy",
+      "video_0.npy",
+      "video_6.npy",
+      "video_3.npy",
+      "video_2.npy",
+      "video_4.npy",
+      "video_5.npy"
+    ],
+    "week": [
+      "video_3.npy",
+      "video_0.npy"
+    ],
+    "month": [
+      "video_4.npy",
+      "video_0.npy",
+      "video_2.npy",
+      "video_1.npy"
+    ],
+    "ago": [
+      "video_2.npy"
+    ],
+    "since": [
+      "video_3.npy",
+      "video_0.npy",
+      "video_1.npy"
+    ],
+    "one": [
+      "video_4.npy",
+      "video_5.npy",
+      "video_0.npy",
+      "video_1.npy"
+    ],
+    "two": [
+      "video_0.npy"
+    ],
+    "three": [
+      "video_3.npy",
+      "video_0.npy",
+      "video_4.npy"
+    ],
+    "many": [
+      "video_3.npy",
+      "video_2.npy",
+      "video_0.npy"
+    ],
+    "better": [
+      "video_0.npy",
+      "video_1.npy"
+    ],
+    "medicine": [
+      "video_0.npy",
+      "video_5.npy",
+      "video_1.npy",
+      "video_4.npy"
+    ],
+    "take": [],
+    "eat": [
+      "video_3.npy",
+      "video_0.npy",
+      "video_4.npy",
+      "video_5.npy"
+    ],
+    "drink": [
+      "video_3.npy",
+      "video_6.npy",
+      "video_5.npy",
+      "video_0.npy",
+      "video_4.npy"
+    ],
+    "water": [
+      "video_0.npy",
+      "video_2.npy",
+      "video_6.npy",
+      "video_1.npy",
+      "video_5.npy"
+    ],
+    "what": [
+      "video_0.npy",
+      "video_1.npy",
+      "video_4.npy",
+      "video_5.npy"
     ]
   },
   "val": {
-    "hello": [
-      "video_0.npy"
-    ],
-    "thankyou": [
-      "video_4.npy"
-    ],
     "yes": [
       "video_1.npy"
     ],
     "no": [
       "video_2.npy"
     ],
-    "help": [
-      "video_11.npy"
+    "not": [
+      "video_0.npy"
     ],
     "please": [
       "video_0.npy"
     ],
+    "thankyou": [
+      "video_4.npy"
+    ],
     "sorry": [
       "video_5.npy"
     ],
-    "teacher": [
+    "again": [
       "video_3.npy"
     ],
-    "student": [
-      "video_5.npy"
+    "understand": [
+      "video_0.npy"
     ],
-    "book": [
-      "video_4.npy"
-    ],
-    "computer": [
-      "video_2.npy",
-      "video_10.npy"
-    ],
-    "learn": [
-      "video_4.npy"
+    "help": [
+      "video_11.npy"
     ],
     "need": [
       "video_5.npy"
     ],
-    "good": [
-      "video_7.npy"
+    "me": [
+      "video_1.npy"
     ],
-    "stop": [
+    "i": [
+      "video_0.npy"
+    ],
+    "you": [
+      "video_3.npy"
+    ],
+    "my": [
+      "video_1.npy"
+    ],
+    "child": [
+      "video_0.npy"
+    ],
+    "sick": [
+      "video_0.npy"
+    ],
+    "hurt": [
+      "video_2.npy"
+    ],
+    "headache": [
+      "video_2.npy"
+    ],
+    "sorethroat": [
+      "video_0.npy"
+    ],
+    "cough": [
+      "video_0.npy"
+    ],
+    "cold": [
+      "video_2.npy"
+    ],
+    "hot": [
+      "video_3.npy"
+    ],
+    "vomit": [
+      "video_0.npy"
+    ],
+    "tired": [
+      "video_4.npy"
+    ],
+    "sleep": [
+      "video_0.npy"
+    ],
+    "allergy": [
+      "video_3.npy"
+    ],
+    "head": [
+      "video_1.npy"
+    ],
+    "stomach": [
+      "video_0.npy"
+    ],
+    "back": [
+      "video_0.npy"
+    ],
+    "arm": [
+      "video_3.npy"
+    ],
+    "heart": [
+      "video_3.npy"
+    ],
+    "now": [
+      "video_2.npy"
+    ],
+    "yesterday": [
+      "video_2.npy"
+    ],
+    "morning": [
+      "video_1.npy"
+    ],
+    "night": [
+      "video_2.npy"
+    ],
+    "day": [
+      "video_8.npy"
+    ],
+    "week": [
+      "video_2.npy"
+    ],
+    "month": [
+      "video_3.npy"
+    ],
+    "ago": [
+      "video_0.npy"
+    ],
+    "since": [
+      "video_2.npy"
+    ],
+    "one": [
+      "video_3.npy"
+    ],
+    "two": [
+      "video_2.npy"
+    ],
+    "three": [
+      "video_2.npy"
+    ],
+    "many": [
+      "video_1.npy"
+    ],
+    "better": [
+      "video_3.npy"
+    ],
+    "medicine": [
+      "video_3.npy"
+    ],
+    "take": [
+      "video_0.npy"
+    ],
+    "eat": [
+      "video_1.npy"
+    ],
+    "drink": [
+      "video_2.npy"
+    ],
+    "water": [
+      "video_4.npy"
+    ],
+    "what": [
       "video_2.npy"
     ]
   },
   "test": {
-    "hello": [
-      "video_1.npy"
-    ],
-    "thankyou": [
-      "video_3.npy"
-    ],
     "yes": [
       "video_8.npy"
     ],
     "no": [
       "video_0.npy"
     ],
-    "help": [
-      "video_2.npy"
+    "not": [
+      "video_1.npy"
     ],
     "please": [
       "video_5.npy"
     ],
+    "thankyou": [
+      "video_3.npy"
+    ],
     "sorry": [
       "video_6.npy"
     ],
-    "teacher": [
-      "video_7.npy"
-    ],
-    "student": [
-      "video_1.npy"
-    ],
-    "book": [
+    "again": [
       "video_2.npy"
     ],
-    "computer": [
-      "video_8.npy",
-      "video_9.npy"
+    "understand": [
+      "video_2.npy"
     ],
-    "learn": [
-      "video_6.npy"
+    "help": [
+      "video_2.npy"
     ],
     "need": [
       "video_3.npy"
     ],
-    "good": [
+    "me": [
+      "video_2.npy"
+    ],
+    "i": [
+      "video_2.npy"
+    ],
+    "you": [
+      "video_0.npy"
+    ],
+    "my": [
+      "video_0.npy"
+    ],
+    "child": [
+      "video_4.npy"
+    ],
+    "sick": [
+      "video_6.npy"
+    ],
+    "hurt": [
+      "video_1.npy"
+    ],
+    "headache": [
+      "video_1.npy"
+    ],
+    "sorethroat": [
+      "video_1.npy"
+    ],
+    "cough": [
+      "video_1.npy"
+    ],
+    "cold": [
+      "video_4.npy"
+    ],
+    "hot": [
+      "video_0.npy"
+    ],
+    "vomit": [
+      "video_3.npy"
+    ],
+    "tired": [
+      "video_0.npy"
+    ],
+    "sleep": [
+      "video_1.npy"
+    ],
+    "allergy": [
+      "video_0.npy"
+    ],
+    "head": [
+      "video_3.npy"
+    ],
+    "stomach": [
+      "video_1.npy"
+    ],
+    "back": [
+      "video_2.npy"
+    ],
+    "arm": [
+      "video_1.npy"
+    ],
+    "heart": [
+      "video_2.npy"
+    ],
+    "now": [
+      "video_4.npy"
+    ],
+    "yesterday": [
+      "video_3.npy"
+    ],
+    "morning": [
+      "video_0.npy"
+    ],
+    "night": [
+      "video_0.npy"
+    ],
+    "day": [
+      "video_1.npy"
+    ],
+    "week": [
+      "video_1.npy"
+    ],
+    "month": [
       "video_5.npy"
     ],
-    "stop": [
-      "video_0.npy"
+    "ago": [
+      "video_1.npy"
+    ],
+    "since": [
+      "video_4.npy"
+    ],
+    "one": [
+      "video_2.npy"
+    ],
+    "two": [
+      "video_1.npy"
+    ],
+    "three": [
+      "video_1.npy"
+    ],
+    "many": [
+      "video_4.npy"
+    ],
+    "better": [
+      "video_2.npy"
+    ],
+    "medicine": [
+      "video_2.npy"
+    ],
+    "take": [
+      "video_1.npy"
+    ],
+    "eat": [
+      "video_2.npy"
+    ],
+    "drink": [
+      "video_1.npy"
+    ],
+    "water": [
+      "video_3.npy"
+    ],
+    "what": [
+      "video_3.npy"
     ]
   }
 }

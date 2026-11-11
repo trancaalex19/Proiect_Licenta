@@ -27,7 +27,8 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 from src.app.sign_info import SIGN_INFO
-from src.config import ACTIONS, KEYPOINTS_DIR, MODEL_PATH, RAW_VIDEOS_DIR, SPLITS_FILE, VIDEO_INDEX_FILE
+from src.config import (ACTIONS, KEYPOINTS_DIR, MODEL_PATH, NUM_CLASSES, RAW_VIDEOS_DIR, SPLITS_FILE,
+                        VIDEO_INDEX_FILE)
 from src.features.preprocessing import fill_gaps
 from src.ml.dataset import load_example, mirrored_files
 from src.ml.model import fit_inputs
@@ -180,6 +181,11 @@ def _load_examples(model=None):
     if model is None and os.path.exists(MODEL_PATH):
         from tensorflow.keras.models import load_model
         model = load_model(MODEL_PATH)
+    if model is not None and model.output_shape[-1] != NUM_CLASSES:
+        # Model antrenat pe alt vocabular: indicii claselor nu se potrivesc cu ACTIONS
+        print(f"Atenție: modelul are {model.output_shape[-1]} clase, ACTIONS are {NUM_CLASSES}. "
+              "Exemplele se aleg fără model, după cât de des se văd mâinile.")
+        model = None
 
     examples = {}
     for label, action in enumerate(ACTIONS):
@@ -314,9 +320,13 @@ class SignGuide:
 
         # Ce face fiecare mână (culorile se potrivesc cu marcajele D / S de pe videoclip)
         y += 30
-        sections = ([('Ambele mâini', info['both'], WHITE)] if 'both' in info else
-                    [('D · Mâna dreaptă', info['right'], RIGHT_HAND_RGB),
-                     ('S · Mâna stângă', info['left'], LEFT_HAND_RGB)])
+        if 'both' in info:
+            sections = [('Ambele mâini', info['both'], WHITE)]
+        elif 'right' in info:
+            sections = [('D · Mâna dreaptă', info['right'], RIGHT_HAND_RGB),
+                        ('S · Mâna stângă', info['left'], LEFT_HAND_RGB)]
+        else:   # descrierea mâinilor nu e scrisă încă: doar videoclipul
+            sections = [('Urmărește videoclipul', 'D = mâna dreaptă a semnatarului, S = cea stângă.', GRAY)]
         if 'then' in info:
             sections.append(('Apoi, ambele mâini', info['then'], WHITE))
         for title, text, color in sections:

@@ -2,48 +2,6 @@
   "description": "Videoclipuri WLASL eliminate manual din setul de date (2026-11-02). Pentru fiecare: mp4 șters din data/raw_videos, .npy corespunzător șters din data/processed_keypoints, setul în care era înainte de reîmpărțire. Completează câmpul \"reason\" (ex.: semn greșit, altă variantă, semnatar ieșit din cadru). Lista 'mirrored': exemple făcute cu mâna stângă (găsite cu python -m src.data.check_handedness și verificate vizual); se oglindesc la încărcare, ca toate exemplele să fie de dreptaci.",
   "removed": [
     {
-      "word": "good",
-      "mp4": "25068.mp4",
-      "npy": "video_2.npy",
-      "old_split": "train",
-      "reason": ""
-    },
-    {
-      "word": "good",
-      "mp4": "25070.mp4",
-      "npy": "video_4.npy",
-      "old_split": "test",
-      "reason": ""
-    },
-    {
-      "word": "good",
-      "mp4": "25073.mp4",
-      "npy": "video_6.npy",
-      "old_split": "train",
-      "reason": ""
-    },
-    {
-      "word": "good",
-      "mp4": "65835.mp4",
-      "npy": "video_8.npy",
-      "old_split": "train",
-      "reason": ""
-    },
-    {
-      "word": "good",
-      "mp4": "69347.mp4",
-      "npy": "video_9.npy",
-      "old_split": "val",
-      "reason": ""
-    },
-    {
-      "word": "hello",
-      "mp4": "27177.mp4",
-      "npy": "video_2.npy",
-      "old_split": "test",
-      "reason": ""
-    },
-    {
       "word": "help",
       "mp4": "27207.mp4",
       "npy": "video_1.npy",
@@ -114,13 +72,6 @@
       "reason": "videoclip prost (eliminat de utilizator)"
     },
     {
-      "word": "learn",
-      "mp4": "32612.mp4",
-      "npy": "video_5.npy",
-      "old_split": "val",
-      "reason": ""
-    },
-    {
       "word": "no",
       "mp4": "38525.mp4",
       "npy": "video_1.npy",
@@ -184,69 +135,6 @@
       "reason": ""
     },
     {
-      "word": "stop",
-      "mp4": "54928.mp4",
-      "npy": "video_3.npy",
-      "old_split": "train",
-      "reason": ""
-    },
-    {
-      "word": "student",
-      "mp4": "55337.mp4",
-      "npy": "video_0.npy",
-      "old_split": "train",
-      "reason": ""
-    },
-    {
-      "word": "student",
-      "mp4": "55339.mp4",
-      "npy": "video_2.npy",
-      "old_split": "train",
-      "reason": ""
-    },
-    {
-      "word": "student",
-      "mp4": "55340.mp4",
-      "npy": "video_3.npy",
-      "old_split": "train",
-      "reason": ""
-    },
-    {
-      "word": "student",
-      "mp4": "55341.mp4",
-      "npy": "video_4.npy",
-      "old_split": "test",
-      "reason": ""
-    },
-    {
-      "word": "student",
-      "mp4": "69494.mp4",
-      "npy": "video_7.npy",
-      "old_split": "val",
-      "reason": ""
-    },
-    {
-      "word": "teacher",
-      "mp4": "57039.mp4",
-      "npy": "video_0.npy",
-      "old_split": "train",
-      "reason": ""
-    },
-    {
-      "word": "teacher",
-      "mp4": "57044.mp4",
-      "npy": "video_4.npy",
-      "old_split": "test",
-      "reason": ""
-    },
-    {
-      "word": "teacher",
-      "mp4": "57045.mp4",
-      "npy": "video_5.npy",
-      "old_split": "train",
-      "reason": ""
-    },
-    {
       "word": "yes",
       "mp4": "64283.mp4",
       "npy": "video_2.npy",
@@ -302,25 +190,39 @@
   ],
   "mirrored": [
     {
-      "word": "learn",
+      "word": "my",
+      "file": "video_4.npy",
+      "source": "WLASL",
+      "split": "train",
+      "reason": "semnatar stângaci: palma stângă pe piept"
+    },
+    {
+      "word": "head",
+      "file": "video_1.npy",
+      "source": "WLASL",
+      "split": "val",
+      "reason": "semnatar stângaci: mâna stângă atinge capul"
+    },
+    {
+      "word": "day",
       "file": "video_2.npy",
       "source": "WLASL",
       "split": "train",
-      "reason": "semnatar stângaci: mâna stângă ia din palma dreaptă și urcă la frunte"
+      "reason": "semnatar stângaci: arătătorul stâng coboară în arc peste brațul drept"
     },
     {
-      "word": "learn",
-      "file": "rec_20261102_182039_870.npy",
-      "source": "proprie",
+      "word": "month",
+      "file": "video_2.npy",
+      "source": "WLASL",
       "split": "train",
-      "reason": "înregistrare făcută cu mâna stângă (copiată după exemplul stângaci din ghid)"
+      "reason": "semnatar stângaci: arătătorul stâng coboară pe arătătorul drept vertical"
     },
     {
-      "word": "stop",
-      "file": "rec_20261102_182053_662.npy",
-      "source": "proprie",
-      "split": "train",
-      "reason": "înregistrare făcută cu mâna stângă (palma stângă lovește palma dreaptă)"
+      "word": "arm",
+      "file": "video_3.npy",
+      "source": "WLASL",
+      "split": "val",
+      "reason": "semnatar stângaci: mâna stângă atinge brațul drept"
     }
   ]
 }
