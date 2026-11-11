@@ -1,5 +1,5 @@
 {
-  "description": "Videoclipuri WLASL eliminate manual din setul de date (2026-11-02). Pentru fiecare: mp4 șters din data/raw_videos, .npy corespunzător șters din data/processed_keypoints, setul în care era înainte de reîmpărțire. Completează câmpul \"reason\" (ex.: semn greșit, altă variantă, semnatar ieșit din cadru). Lista 'mirrored': exemple făcute cu mâna stângă (găsite cu python -m src.data.check_handedness și verificate vizual); se oglindesc la încărcare, ca toate exemplele să fie de dreptaci.",
+  "description": "Videoclipuri WLASL eliminate manual din setul de date (2026-11-02). Pentru fiecare: mp4 șters din data/raw_videos, .npy corespunzător șters din data/processed_keypoints, setul în care era înainte de reîmpărțire. Completează câmpul \"reason\" (ex.: semn greșit, altă variantă, semnatar ieșit din cadru). Lista 'mirrored': exemple făcute cu mâna stângă (găsite cu python -m src.data.check_handedness și verificate vizual); se oglindesc la încărcare, ca toate exemplele să fie de dreptaci. Videoclipurile cuvintelor noi (vocabularul de 51 de cuvinte) eliminate pe 2026-11-09 au fost șterse înainte de extragere, deci au 'npy' și 'old_split' = null.",
   "removed": [
     {
       "word": "help",
@@ -182,6 +182,993 @@
       "npy": "video_11.npy",
       "old_split": "test",
       "reason": ""
+    },
+    {
+      "word": "not",
+      "mp4": "38858.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "not",
+      "mp4": "38859.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "not",
+      "mp4": "38860.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "not",
+      "mp4": "38861.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "not",
+      "mp4": "38863.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "again",
+      "mp4": "01466.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "again",
+      "mp4": "65032.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "understand",
+      "mp4": "60551.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "understand",
+      "mp4": "60547.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "understand",
+      "mp4": "60548.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "understand",
+      "mp4": "60556.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "me",
+      "mp4": "me_35548.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "i",
+      "mp4": "i_28791.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "you",
+      "mp4": "64385.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "you",
+      "mp4": "64383.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "my",
+      "mp4": "37473.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "child",
+      "mp4": "10450.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "child",
+      "mp4": "10443.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "child",
+      "mp4": "10453.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "sick",
+      "mp4": "51507.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hurt",
+      "mp4": "hurt_28441.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hurt",
+      "mp4": "hurt_28445.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hurt",
+      "mp4": "hurt_28446.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hurt",
+      "mp4": "hurt_28440.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hurt",
+      "mp4": "pain_40810.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hurt",
+      "mp4": "pain_40803.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hurt",
+      "mp4": "pain_40807.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "headache",
+      "mp4": "26839.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "headache",
+      "mp4": "26840.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "headache",
+      "mp4": "26846.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "headache",
+      "mp4": "26833.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "sorethroat",
+      "mp4": "53341.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "sorethroat",
+      "mp4": "53344.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "sorethroat",
+      "mp4": "53345.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "sorethroat",
+      "mp4": "53347.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "cough",
+      "mp4": "13473.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "cough",
+      "mp4": "65411.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "cough",
+      "mp4": "13468.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "cough",
+      "mp4": "13469.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "cold",
+      "mp4": "11624.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "cold",
+      "mp4": "11621.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "cold",
+      "mp4": "11633.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "cold",
+      "mp4": "11634.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "cold",
+      "mp4": "11635.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hot",
+      "mp4": "28108.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hot",
+      "mp4": "28111.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hot",
+      "mp4": "28115.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "hot",
+      "mp4": "28116.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "vomit",
+      "mp4": "61983.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "vomit",
+      "mp4": "61986.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "vomit",
+      "mp4": "61987.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "vomit",
+      "mp4": "61990.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "vomit",
+      "mp4": "61980.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "tired",
+      "mp4": "58594.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "sleep",
+      "mp4": "52320.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "allergy",
+      "mp4": "65051.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "allergy",
+      "mp4": "01965.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "allergy",
+      "mp4": "01956.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "allergy",
+      "mp4": "01957.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "head",
+      "mp4": "26856.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "stomach",
+      "mp4": "54886.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "stomach",
+      "mp4": "54879.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "stomach",
+      "mp4": "54880.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "stomach",
+      "mp4": "54882.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "stomach",
+      "mp4": "54883.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "back",
+      "mp4": "04600.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "back",
+      "mp4": "04601.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "back",
+      "mp4": "04592.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "back",
+      "mp4": "04604.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "arm",
+      "mp4": "03339.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "arm",
+      "mp4": "03342.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "heart",
+      "mp4": "27044.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "heart",
+      "mp4": "27046.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "heart",
+      "mp4": "27050.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "heart",
+      "mp4": "27057.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "now",
+      "mp4": "38999.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "now",
+      "mp4": "39000.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "now",
+      "mp4": "38997.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "yesterday",
+      "mp4": "64308.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "yesterday",
+      "mp4": "64311.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "yesterday",
+      "mp4": "66822.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "yesterday",
+      "mp4": "64315.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "yesterday",
+      "mp4": "64306.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "morning",
+      "mp4": "36863.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "night",
+      "mp4": "38341.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "week",
+      "mp4": "62746.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "week",
+      "mp4": "62747.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "week",
+      "mp4": "62748.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "week",
+      "mp4": "62742.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "week",
+      "mp4": "62743.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "month",
+      "mp4": "36738.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "ago",
+      "mp4": "01557.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "ago",
+      "mp4": "01558.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "ago",
+      "mp4": "01560.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "ago",
+      "mp4": "01561.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "ago",
+      "mp4": "01554.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "ago",
+      "mp4": "01556.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "since",
+      "mp4": "51781.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "since",
+      "mp4": "66483.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "since",
+      "mp4": "51778.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "one",
+      "mp4": "39747.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "one",
+      "mp4": "39748.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "two",
+      "mp4": "69521.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "two",
+      "mp4": "60224.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "two",
+      "mp4": "60225.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "three",
+      "mp4": "58185.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "three",
+      "mp4": "58186.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "many",
+      "mp4": "34826.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "many",
+      "mp4": "34830.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "many",
+      "mp4": "34831.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "many",
+      "mp4": "34832.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "many",
+      "mp4": "34839.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "better",
+      "mp4": "06069.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "medicine",
+      "mp4": "35455.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "medicine",
+      "mp4": "35458.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "take",
+      "mp4": "69500.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "take",
+      "mp4": "56698.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "take",
+      "mp4": "56699.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "take",
+      "mp4": "56700.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "take",
+      "mp4": "56701.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "take",
+      "mp4": "56702.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "take",
+      "mp4": "56704.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "take",
+      "mp4": "56705.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "take",
+      "mp4": "56694.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "eat",
+      "mp4": "18329.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "drink",
+      "mp4": "17733.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "drink",
+      "mp4": "65540.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "drink",
+      "mp4": "17712.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "drink",
+      "mp4": "17720.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "drink",
+      "mp4": "17721.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "drink",
+      "mp4": "17722.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "drink",
+      "mp4": "17723.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "drink",
+      "mp4": "17724.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "water",
+      "mp4": "62505.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "water",
+      "mp4": "62506.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "what",
+      "mp4": "62967.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "what",
+      "mp4": "66769.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "what",
+      "mp4": "62988.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "what",
+      "mp4": "62975.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "what",
+      "mp4": "62979.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
+    },
+    {
+      "word": "what",
+      "mp4": "62966.mp4",
+      "npy": null,
+      "old_split": null,
+      "reason": "videoclip prost, eliminat de utilizator la verificarea manuală din 2026-11-09 (înainte de extragere: nu a avut .npy și nu a fost în nicio împărțire)"
     }
   ],
   "split_changes": [
