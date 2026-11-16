@@ -1,0 +1,36 @@
+# Frazele de test pentru vorbire -> text: ce ar spune medicul în consultație.
+# O frază pe rând; rândurile care încep cu # sunt ignorate.
+# Se înregistrează cu: python -m src.speech.record_test_set
+# (fraza de pe rândul k devine 00k.wav + 00k.txt; nu reordona frazele după ce ai început)
+Bună ziua, cu ce vă pot ajuta?
+Ce vă doare?
+De când vă doare capul?
+Aveți febră?
+Vă doare gâtul când înghițiți?
+Tușiți de mult timp?
+Ați vomitat de ieri?
+Unde vă doare, la stomac sau la spate?
+Aveți vreo alergie la medicamente?
+Luați vreun medicament acum?
+Arătați-mi unde vă doare.
+Vă doare burta după ce mâncați?
+Dormiți bine noaptea?
+Vă simțiți obosit în ultima săptămână?
+Copilul are febră de dimineață?
+Vă doare brațul drept?
+Simțiți durere în piept sau la inimă?
+Beți destulă apă?
+Luați acest medicament de două ori pe zi.
+Luați câte o pastilă dimineața și una seara.
+Nu mâncați nimic înainte de analize.
+Reveniți peste o săptămână.
+Vă simțiți mai bine decât ieri?
+Durerea a început acum trei zile?
+Ați răcit de curând?
+Mai aveți nevoie de ceva?
+Vă rog să repetați.
+Înțelegeți ce v-am spus?
+Îmi pare rău, nu am înțeles.
+Da.
+Nu.
+Mulțumesc, la revedere.

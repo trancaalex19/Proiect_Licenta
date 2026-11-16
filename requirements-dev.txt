@@ -1,0 +1,5 @@
+# Doar pentru laptop: conversia modelului readerbench/whisper-ro în CTranslate2
+# (src/speech/convert_model.py). NU se instalează pe Raspberry Pi.
+-r requirements.txt
+torch==2.14.1
+transformers==5.23.0

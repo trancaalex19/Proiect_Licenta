@@ -3,3 +3,14 @@ __pycache__/
 *.pyc
 .vscode/
 Thumbs.db
+# Secrete (cheia Groq)
+.env
+
+# Modele mari, descărcate sau generate local (ex. models/whisper-ro-ct2/).
+# Excepție: modelul de semne, care rămâne în git.
+models/*
+!models/sign_language_model.h5
+
+# Vorbire: înregistrări de test și jurnalul transcrierilor (vocea și ce s-a spus)
+data/speech_recordings/
+data/speech_log.csv

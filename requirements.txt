@@ -1,7 +1,28 @@
+# Dependențele aplicației: aceleași pe laptop (Windows) și pe Raspberry Pi 4 (Raspberry Pi OS 64-bit,
+# Python 3.11). Toate au wheel pentru Linux aarch64, deci pe Pi nu se compilează nimic.
+
+# Recunoașterea semnelor
 tensorflow==2.15.0
 mediapipe==0.10.7
-opencv-contrib-python==5.0.0.93
+# 4.11 = ultima versiune care acceptă numpy 1.x (tensorflow 2.15 cere numpy < 2; opencv 5 cere numpy >= 2)
+opencv-contrib-python==4.11.0.86
 numpy==1.26.4
 scikit-learn==1.9.1
 Pillow==12.3.0
+# mediapipe 0.10.7 cere protobuf < 4
 protobuf==3.20.3
+
+# Vorbire -> text (ce spune medicul)
+faster-whisper==1.2.1
+ctranslate2==4.9.0
+# Dependențe ale lui faster-whisper, fixate explicit: onnxruntime 1.26 este ultima versiune care
+# merge cu protobuf 3.20.3, iar av 18.1 are încă wheel pentru Python 3.11
+onnxruntime==1.26.0
+av==18.1.0
+groq==1.7.0
+python-dotenv==1.2.4
+# pe Linux are nevoie și de biblioteca de sistem PortAudio: sudo apt install libportaudio2
+sounddevice==0.5.6
+# același pachet pe Windows și pe Pi (se importă ca `webrtcvad`)
+webrtcvad-wheels==2.0.14.post1
+jiwer==4.0.0
