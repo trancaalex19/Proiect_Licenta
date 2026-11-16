@@ -9,7 +9,7 @@ acuratețea și confuziile. Datele salvate NU intră niciodată în antrenare; o
 model nou se reevaluează pe ele cu:  python -m src.ml.evaluate_live
 
 Rulare (din rădăcina proiectului, cu venv activat):
-    python -m src.app.live_test                 # 3 runde x 15 cuvinte = 45 de încercări
+    python -m src.app.live_test                 # 3 runde x toate cuvintele
     python -m src.app.live_test --rounds 2
     python -m src.app.live_test --camera 0 --no-guide
 
@@ -25,16 +25,17 @@ from datetime import datetime
 os.environ.setdefault('TF_CPP_MIN_LOG_LEVEL', '2')
 
 import cv2
-import mediapipe as mp
 import numpy as np
 from tensorflow.keras.models import load_model
 
-from src.app.live_predict import (draw_landmarks, draw_overlay, draw_segmenter, process_frame,
-                                  resize_for_display)
+from src.app.camera import (make_holistic, open_camera, place_windows, process_frame,
+                            resize_for_display, smooth_fps)
+from src.app.overlay import draw_landmarks, draw_overlay, draw_segmenter
 from src.app.segmenter import SignSegmenter
-from src.config import ACTIONS, CAMERA_INDEX, LIVE_TEST_DIR, MODEL_PATH
+from src.config import ACTIONS, CAMERA_INDEX, LABEL_MAP, LIVE_TEST_DIR, MODEL_PATH
 from src.features.keypoints import extract_keypoints
-from src.ml.evaluate_live import LABEL_MAP, predict_segment, print_report
+from src.ml.evaluate_live import print_report
+from src.ml.model import predict_segment
 
 WINDOW_NAME = 'Test live (SPATIU = start/pauza, r = refa ultima, q = iesire)'
 FEEDBACK_SECONDS = 1.5   # cât rămâne rezultatul pe ecran înainte de următorul cuvânt
@@ -83,9 +84,8 @@ def main():
         from src.app.sign_guide import SignGuide
         guide = SignGuide(model=model)
 
-    cap = cv2.VideoCapture(args.camera)
-    if not cap.isOpened():
-        print(f"EROARE: Nu pot deschide camera {args.camera}.")
+    cap = open_camera(args.camera)
+    if cap is None:
         return
 
     session = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -101,13 +101,13 @@ def main():
         guide.set_target(plan[0])
     print(f"Sesiunea {session}: {len(plan)} încercări. Apasă SPAȚIU în fereastra camerei.")
 
-    with mp.solutions.holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+    with make_holistic() as holistic:
         while cap.isOpened() and index < len(plan):
             ret, frame = cap.read()
             if not ret:
                 break
             now = time.perf_counter()
-            fps = 0.9 * fps + 0.1 / max(now - last_time, 1e-6)
+            fps = smooth_fps(fps, now - last_time)
             last_time = now
             word = plan[index]
 
@@ -147,10 +147,7 @@ def main():
                 guide.show(message=f"Corecte până acum: {correct}/{len(saved)}")
 
             if not windows_placed:
-                cv2.moveWindow(WINDOW_NAME, 0, 0)
-                if guide is not None:
-                    from src.app.sign_guide import WINDOW_NAME as GUIDE_WINDOW
-                    cv2.moveWindow(GUIDE_WINDOW, image.shape[1] + 10, 0)
+                place_windows(WINDOW_NAME, image, guide)
                 windows_placed = True
 
             key = cv2.waitKey(1) & 0xFF

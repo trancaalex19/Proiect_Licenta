@@ -27,6 +27,7 @@ ACTIONS = [
     'what',
 ]
 NUM_CLASSES = len(ACTIONS)
+LABEL_MAP = {action: i for i, action in enumerate(ACTIONS)}   # cuvânt -> indexul clasei
 
 # Căi
 DATA_DIR = 'data'
@@ -55,7 +56,7 @@ CAMERA_INDEX = 1
 
 # Secvențe
 SEQUENCE_LENGTH = 30   # cadre per exemplu
-RAW_FEATURE_DIM = 1662  # pose 33x4 + față 468x3 + mână stângă 21x3 + mână dreaptă 21x3
+# Dimensiunea vectorului brut (1662) și pozițiile din el: src/features/keypoints.py (RAW_DIM)
 
 # Reproductibilitate
 SEED = 42

@@ -8,12 +8,10 @@ import os
 import numpy as np
 from tensorflow.keras.utils import Sequence, to_categorical
 
-from src.config import (ACTIONS, CLEANING_LOG_FILE, KEYPOINTS_DIR, NUM_CLASSES, RECORDED_DIR,
-                        SEQUENCE_LENGTH, SPLITS_FILE)
+from src.config import (ACTIONS, CLEANING_LOG_FILE, KEYPOINTS_DIR, LABEL_MAP, NUM_CLASSES,
+                        RECORDED_DIR, SEQUENCE_LENGTH, SPLITS_FILE)
 from src.features.augmentation import augment, mirror
 from src.features.preprocessing import FEATURE_DIM, preprocess
-
-LABEL_MAP = {action: i for i, action in enumerate(ACTIONS)}
 
 
 def mirrored_files():

@@ -29,6 +29,7 @@ from PIL import Image, ImageDraw, ImageFont
 from src.app.sign_info import SIGN_INFO
 from src.config import (ACTIONS, KEYPOINTS_DIR, MODEL_PATH, NUM_CLASSES, RAW_VIDEOS_DIR, SPLITS_FILE,
                         VIDEO_INDEX_FILE)
+from src.features.keypoints import LH_START, RH_START
 from src.features.preprocessing import fill_gaps
 from src.ml.dataset import load_example, mirrored_files
 from src.ml.model import fit_inputs
@@ -48,10 +49,8 @@ WHITE, GRAY, ORANGE, GREEN = (255, 255, 255), (170, 170, 170), (245, 117, 16), (
 RIGHT_HAND_RGB, LEFT_HAND_RGB = RIGHT_HAND_BGR[::-1], LEFT_HAND_BGR[::-1]
 
 # În vectorul brut de 1662 (vezi src/features/keypoints.py), mâinile sunt la final
-_HANDS_START = 33 * 4 + 468 * 3
-_LH_START, _RH_START = _HANDS_START, _HANDS_START + 21 * 3
 # Marcajele de pe videoclip: (literă, unde începe mâna în vectorul brut, culoare)
-HAND_MARKERS = (('D', _RH_START, RIGHT_HAND_BGR), ('S', _LH_START, LEFT_HAND_BGR))
+HAND_MARKERS = (('D', RH_START, RIGHT_HAND_BGR), ('S', LH_START, LEFT_HAND_BGR))
 
 
 # ---------------------------------------------------------------------------
@@ -114,7 +113,7 @@ class VideoClip:
 
         # Timpul mort: keypoints-urile salvate (raw) sunt cadre eșantionate uniform din
         # tot videoclipul, deci prima / ultima mână detectată se poate duce înapoi în timp.
-        hands = np.where(np.any(raw[:, _HANDS_START:] != 0, axis=1))[0]
+        hands = np.where(np.any(raw[:, LH_START:] != 0, axis=1))[0]
         start, end = 0, len(frames)
         if len(frames) > 1 and len(hands) >= 3:
             positions = np.linspace(0, len(frames) - 1, len(raw))
@@ -198,7 +197,7 @@ def _load_examples(model=None):
         paths = [os.path.join(KEYPOINTS_DIR, action, f) for f in files]
         raws = [np.load(p) for p in paths]
         left_handed = [(action, f) in mirrored for f in files]
-        coverage = np.array([np.any(r[:, _HANDS_START:] != 0, axis=1).mean() for r in raws])
+        coverage = np.array([np.any(r[:, LH_START:] != 0, axis=1).mean() for r in raws])
         if model is not None and raws:
             X = fit_inputs(model, np.stack([load_example(action, p, mirrored) for p in paths]))
             probs = model.predict(X, verbose=0)[:, label]

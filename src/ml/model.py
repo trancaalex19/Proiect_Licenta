@@ -1,11 +1,12 @@
-"""Arhitectura rețelei, separată de scriptul de antrenare."""
+"""Arhitectura rețelei, separată de scriptul de antrenare, și predicția pe un semn brut."""
+import numpy as np
 from tensorflow.keras import regularizers
 from tensorflow.keras.layers import LSTM, Dense, Dropout, Input
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
 from src.config import NUM_CLASSES, SEQUENCE_LENGTH
-from src.features.preprocessing import FEATURE_DIM
+from src.features.preprocessing import FEATURE_DIM, preprocess
 
 
 def fit_inputs(model, X):
@@ -16,9 +17,14 @@ def fit_inputs(model, X):
     return X[..., :model.input_shape[-1]]
 
 
+def predict_segment(model, segment):
+    """Segment brut (T, 1662) -> probabilitățile claselor."""
+    return model.predict(fit_inputs(model, preprocess(segment)[np.newaxis]), verbose=0)[0]
+
+
 def build_model(units=64, dense_units=64, dropout=0.4, l2=1e-4, learning_rate=1e-3,
                 feature_dim=FEATURE_DIM):
-    """LSTM mic, potrivit pentru ~100 de videoclipuri de antrenare."""
+    """LSTM mic, potrivit pentru câteva sute de exemple de antrenare."""
     reg = regularizers.l2(l2)
     model = Sequential([
         Input(shape=(SEQUENCE_LENGTH, feature_dim)),

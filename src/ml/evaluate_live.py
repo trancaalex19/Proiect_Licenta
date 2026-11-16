@@ -17,16 +17,8 @@ os.environ.setdefault('TF_CPP_MIN_LOG_LEVEL', '2')
 
 import numpy as np
 
-from src.config import ACTIONS, LIVE_TEST_DIR, MODEL_PATH, NUM_CLASSES
-from src.features.preprocessing import preprocess
-from src.ml.model import fit_inputs
-
-LABEL_MAP = {action: i for i, action in enumerate(ACTIONS)}
-
-
-def predict_segment(model, segment):
-    """Segment brut (T, 1662) -> probabilitățile celor 15 clase."""
-    return model.predict(fit_inputs(model, preprocess(segment)[np.newaxis]), verbose=0)[0]
+from src.config import ACTIONS, LABEL_MAP, LIVE_TEST_DIR, MODEL_PATH, NUM_CLASSES
+from src.ml.model import predict_segment
 
 
 def load_live_test(session_prefix=''):

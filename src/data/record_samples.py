@@ -12,7 +12,7 @@ brută (SEQUENCE_LENGTH x 1662) în data/recorded_keypoints/<cuvânt>/rec_<dată
 Rulare (din rădăcina proiectului, cu venv activat):
     python -m src.data.record_samples                     # toate cuvintele, până la nivelul maxim
     python -m src.data.record_samples --target 20         # alt număr țintă de exemple per cuvânt
-    python -m src.data.record_samples --words hello stop  # doar anumite cuvinte
+    python -m src.data.record_samples --words yes no  # doar anumite cuvinte
     python -m src.data.record_samples --camera 0          # altă cameră
     python -m src.data.record_samples --seconds 5         # altă durată pentru toate cuvintele
 
@@ -30,8 +30,9 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
+from src.app.camera import make_holistic, open_camera, place_windows, resize_for_display
 from src.config import ACTIONS, CAMERA_INDEX, KEYPOINTS_DIR, RECORDED_DIR, SEQUENCE_LENGTH
-from src.features.keypoints import extract_keypoints, to_fixed_length
+from src.features.keypoints import FACE_END, POSE_END, extract_keypoints, to_fixed_length
 
 WINDOW_NAME = 'Inregistrare (SPATIU = start/pauza, r = sterge ultima, s = sari, q = iesire)'
 COUNTDOWN_SECONDS = 3
@@ -42,9 +43,6 @@ RECORD_SECONDS = 3.0
 WORD_SECONDS = {'student': 5.0}
 MIN_HAND_RATIO = 0.3   # minim 30% din cadre trebuie să aibă o mână, altfel se repetă
 MIN_POSE_RATIO = 0.8   # umerii trebuie să se vadă (normalizarea se face față de umeri)
-DISPLAY_WIDTH = 800
-
-_FACE_END = 33 * 4 + 468 * 3
 
 TIPS = [
     "Pornește cu mâinile jos, fă semnul, apoi coboară mâinile.",
@@ -99,8 +97,8 @@ def plan_recordings(words, target, seconds_override=None):
 def check_quality(frames):
     """Verifică dacă înregistrarea e utilizabilă. Returnează (ok, motiv)."""
     raw = np.array(frames)
-    hand_ratio = np.any(raw[:, _FACE_END:] != 0, axis=1).mean()
-    pose_ratio = np.any(raw[:, :33 * 4] != 0, axis=1).mean()
+    hand_ratio = np.any(raw[:, FACE_END:] != 0, axis=1).mean()
+    pose_ratio = np.any(raw[:, :POSE_END] != 0, axis=1).mean()
     if pose_ratio < MIN_POSE_RATIO:
         return False, "Nu s-au văzut umerii. Stai de la talie în sus în cadru."
     if hand_ratio < MIN_HAND_RATIO:
@@ -145,7 +143,7 @@ def draw_status(image, state, action, done, needed, seconds_left, progress, mess
         cv2.putText(image, message, (10, h - 50), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2, cv2.LINE_AA)
 
 
-def ascii(text):
+def fara_diacritice(text):
     """OpenCV nu afișează diacritice."""
     return text.translate(str.maketrans('ăâîșşțţĂÂÎȘŞȚŢ', 'aaissttAAISSTT'))
 
@@ -173,9 +171,8 @@ def main():
     from src.app.sign_guide import SignGuide
     guide = SignGuide()
 
-    cap = cv2.VideoCapture(args.camera)
-    if not cap.isOpened():
-        print(f"EROARE: Nu pot deschide camera {args.camera}.")
+    cap = open_camera(args.camera)
+    if cap is None:
         return
 
     word_idx = 0
@@ -186,7 +183,7 @@ def main():
     guide.set_target(plan[0][0])
     windows_placed = False
 
-    with mp.solutions.holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+    with make_holistic() as holistic:
         while cap.isOpened() and word_idx < len(plan):
             action, needed = plan[word_idx]
             ret, frame = cap.read()
@@ -211,9 +208,9 @@ def main():
                         saved_paths.append(save_recording(action, frames))
                         done += 1
                         tip_idx = (tip_idx + 1) % len(TIPS)
-                        message = f"Salvat ({done}/{needed}). " + ascii(TIPS[tip_idx])
+                        message = f"Salvat ({done}/{needed}). " + fara_diacritice(TIPS[tip_idx])
                     else:
-                        message = ascii(reason)
+                        message = fara_diacritice(reason)
                     if done >= needed:  # cuvânt terminat -> următorul, cu pauză
                         word_idx += 1
                         done, saved_paths = 0, []
@@ -226,9 +223,7 @@ def main():
                     state_start = now
 
             # Afișare
-            if image.shape[1] > DISPLAY_WIDTH:
-                scale = DISPLAY_WIDTH / image.shape[1]
-                image = cv2.resize(image, (DISPLAY_WIDTH, int(image.shape[0] * scale)))
+            image = resize_for_display(image)
             seconds_left = COUNTDOWN_SECONDS - elapsed if state == 'countdown' else 0
             progress = min(1.0, elapsed / duration) if state == 'recording' else 0
             current = plan[min(word_idx, len(plan) - 1)]
@@ -238,9 +233,7 @@ def main():
             guide.show(message=f"Înregistrări rămase în total: {remaining}")
 
             if not windows_placed:
-                from src.app.sign_guide import WINDOW_NAME as GUIDE_WINDOW
-                cv2.moveWindow(WINDOW_NAME, 0, 0)
-                cv2.moveWindow(GUIDE_WINDOW, image.shape[1] + 10, 0)
+                place_windows(WINDOW_NAME, image, guide)
                 windows_placed = True
 
             # Taste

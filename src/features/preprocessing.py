@@ -27,15 +27,10 @@ Aranjarea trăsăturilor într-un cadru (192 de valori):
 import numpy as np
 
 from src.config import SEQUENCE_LENGTH
-
-# Indici în vectorul brut
-_POSE_END = 33 * 4
-_FACE_END = _POSE_END + 468 * 3
-_LH_END = _FACE_END + 21 * 3
+from src.features.keypoints import FACE_END, L_SHOULDER, LH_END, POSE_END, R_SHOULDER
 
 # Puncte MediaPipe Pose păstrate: nas, umeri, coate, încheieturi, degete (pinky/index/thumb)
 POSE_LANDMARKS = [0, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
-_L_SHOULDER, _R_SHOULDER = 11, 12
 
 N_POSE = len(POSE_LANDMARKS)
 N_HAND = 21
@@ -106,10 +101,10 @@ def fill_gaps(points, present, max_gap_ratio=0.5):
 
 
 def _normalize(raw, fill_hand_gaps=True):
-    """(T, 1662) -> (T, 112), normalizat față de umeri."""
-    pose = raw[:, :_POSE_END].reshape(-1, 33, 4)[:, :, :2]
-    lh = raw[:, _FACE_END:_LH_END].reshape(-1, 21, 3)[:, :, :2]
-    rh = raw[:, _LH_END:].reshape(-1, 21, 3)[:, :, :2]
+    """(T, 1662) -> (T, 192), normalizat față de umeri."""
+    pose = raw[:, :POSE_END].reshape(-1, 33, 4)[:, :, :2]
+    lh = raw[:, FACE_END:LH_END].reshape(-1, 21, 3)[:, :, :2]
+    rh = raw[:, LH_END:].reshape(-1, 21, 3)[:, :, :2]
 
     pose_present = np.any(pose != 0, axis=(1, 2))
     lh_present = np.any(lh != 0, axis=(1, 2))
@@ -120,7 +115,7 @@ def _normalize(raw, fill_hand_gaps=True):
 
     # Centru și scară la nivel de secvență (mediana), ca mișcarea corpului să rămână vizibilă
     if pose_present.any():
-        shoulders = pose[pose_present][:, [_L_SHOULDER, _R_SHOULDER]]
+        shoulders = pose[pose_present][:, [L_SHOULDER, R_SHOULDER]]
         center = np.median(shoulders.mean(axis=1), axis=0)
         width = np.median(np.linalg.norm(shoulders[:, 0] - shoulders[:, 1], axis=1))
     else:
@@ -158,7 +153,7 @@ def trim_inactive(features, min_frames=5):
 
 
 def preprocess(raw_sequence, fill_hand_gaps=True):
-    """Secvență brută (T, 1662) -> trăsături model (SEQUENCE_LENGTH, 112)."""
+    """Secvență brută (T, 1662) -> trăsături model (SEQUENCE_LENGTH, 192)."""
     raw = np.asarray(raw_sequence, dtype=np.float32)
     features = _normalize(raw, fill_hand_gaps=fill_hand_gaps)
     features = trim_inactive(features)

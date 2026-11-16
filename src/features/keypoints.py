@@ -7,6 +7,15 @@ import numpy as np
 
 from src.config import SEQUENCE_LENGTH
 
+# Pozițiile din vectorul brut: pose 33x4 | față 468x3 | mână stângă 21x3 | mână dreaptă 21x3
+POSE_END = 33 * 4
+FACE_END = POSE_END + 468 * 3
+LH_END = FACE_END + 21 * 3
+RAW_DIM = LH_END + 21 * 3   # 1662
+LH_START, RH_START = FACE_END, LH_END   # unde începe fiecare mână
+# Umerii în MediaPipe Pose (stâng, drept)
+L_SHOULDER, R_SHOULDER = 11, 12
+
 
 def extract_keypoints(results):
     """

@@ -16,9 +16,9 @@ import json
 import os
 
 import cv2
-import mediapipe as mp
 import numpy as np
 
+from src.app.camera import make_holistic
 from src.config import KEYPOINTS_DIR, RAW_VIDEOS_DIR, SEQUENCE_LENGTH, VIDEO_INDEX_FILE
 from src.features.keypoints import extract_keypoints, to_fixed_length
 
@@ -55,7 +55,7 @@ def main():
         with open(VIDEO_INDEX_FILE, 'r', encoding='utf-8') as f:
             video_index = json.load(f)
 
-    with mp.solutions.holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5) as holistic:
+    with make_holistic() as holistic:
         for action in actions:
             action_raw_path = os.path.join(RAW_VIDEOS_DIR, action)
             action_out_path = os.path.join(KEYPOINTS_DIR, action)

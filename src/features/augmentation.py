@@ -1,5 +1,5 @@
 """
-Augmentare pentru trăsăturile preprocesate (T, 112), aplicată DOAR pe setul de
+Augmentare pentru trăsăturile preprocesate (T, 192), aplicată DOAR pe setul de
 antrenare, aleator la fiecare epocă (vezi src/ml/dataset.py).
 
 Toate transformările lasă neatinse mâinile nedetectate (rămân 0).

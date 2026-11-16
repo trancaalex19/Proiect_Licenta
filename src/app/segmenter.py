@@ -20,11 +20,7 @@ from collections import deque
 
 import numpy as np
 
-# Indici în vectorul brut (vezi src/features/keypoints.py)
-_POSE_END = 33 * 4
-_FACE_END = _POSE_END + 468 * 3
-_LH_END = _FACE_END + 21 * 3
-_L_SHOULDER, _R_SHOULDER = 11, 12
+from src.features.keypoints import FACE_END, L_SHOULDER, LH_END, POSE_END, R_SHOULDER
 
 START_LEVEL = 0.6       # mâna peste acest nivel = începe semnul
 REST_LEVEL = 0.8        # mâinile sub acest nivel (sau nevăzute) = repaus
@@ -54,10 +50,10 @@ class SignSegmenter:
 
     # ------------------------------------------------------------------
     def _update_reference(self, raw):
-        pose = raw[:_POSE_END].reshape(33, 4)
+        pose = raw[:POSE_END].reshape(33, 4)
         if not np.any(pose):
             return
-        shoulders = pose[[_L_SHOULDER, _R_SHOULDER], :2]
+        shoulders = pose[[L_SHOULDER, R_SHOULDER], :2]
         y, width = shoulders[:, 1].mean(), np.linalg.norm(shoulders[0] - shoulders[1])
         if width < 1e-6:
             return
@@ -70,7 +66,7 @@ class SignSegmenter:
         """Cea mai ridicată încheietură detectată, în lățimi de umăr sub umeri; None dacă nu se vede."""
         if self.reference is None:
             return None
-        wrists = [raw[start + 1] for start in (_FACE_END, _LH_END) if np.any(raw[start:start + 63])]
+        wrists = [raw[start + 1] for start in (FACE_END, LH_END) if np.any(raw[start:start + 63])]
         if not wrists:
             return None
         y, width = self.reference
