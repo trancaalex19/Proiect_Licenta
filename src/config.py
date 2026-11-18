@@ -144,3 +144,16 @@ SPEECH_EVAL_FILE = Path(DATA_DIR) / 'speech_eval.csv'          # rezultatele eva
 # Evaluare: dacă Groq răspunde 429 (limita planului gratuit), așteptăm și reîncercăm
 GROQ_RATE_LIMIT_WAIT_SECONDS = 10
 GROQ_RATE_LIMIT_RETRIES = 3
+
+# ---------------------------------------------------------------------------
+# Avatar 3D care semnează (text al medicului -> semne ASL), în src/avatar/
+# ---------------------------------------------------------------------------
+AVATAR_MOTION_DIR = Path(DATA_DIR) / 'avatar_motion'           # mișcarea fiecărui semn (JSON, src/avatar/export_motion.py)
+AVATAR_MODEL_FILE = Path('models') / 'avatar' / 'avatar.vrm'   # personajul 3D (VRM); nu e în git
+AVATAR_EVAL_DIR = Path(DATA_DIR) / 'avatar_eval'               # rezultatele back-translation (src/avatar/evaluate_avatar.py)
+AVATAR_HOST = '127.0.0.1'   # 0.0.0.0 = pagina se poate deschide și de pe o tabletă din aceeași rețea
+AVATAR_PORT = 8765
+# Raportul înălțime/lățime al camerei la înregistrările proprii (telefon, 16:9). Coordonatele
+# MediaPipe sunt fracții din lățime (x) și din înălțime (y); fără raport, mișcarea s-ar turti.
+# Estimat din date: palma (rigidă) are lungimi cel mai constante în timp la 0.5625.
+CAMERA_ASPECT = 9 / 16

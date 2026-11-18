@@ -1,0 +1,359 @@
+{
+ "yes": {
+  "meaning": "Da",
+  "method": "dba",
+  "source": "DBA din 17 înregistrări (bază rec_20261102_181413_299.npy)",
+  "confidence": 1.0,
+  "frames": 20
+ },
+ "no": {
+  "meaning": "Nu",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261104_143002_713.npy)",
+  "confidence": 0.999,
+  "frames": 17
+ },
+ "not": {
+  "meaning": "Nu (negație)",
+  "method": "dba",
+  "source": "DBA din 22 înregistrări (bază rec_20261109_161217_438.npy)",
+  "confidence": 1.0,
+  "frames": 17
+ },
+ "please": {
+  "meaning": "Te rog",
+  "method": "dba",
+  "source": "DBA din 17 înregistrări (bază rec_20261104_144236_312.npy)",
+  "confidence": 0.664,
+  "frames": 15
+ },
+ "thankyou": {
+  "meaning": "Mulțumesc",
+  "method": "dba",
+  "source": "DBA din 15 înregistrări (bază rec_20261104_143206_831.npy)",
+  "confidence": 1.0,
+  "frames": 18
+ },
+ "sorry": {
+  "meaning": "Îmi pare rău",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261102_173740_941.npy)",
+  "confidence": 1.0,
+  "frames": 20
+ },
+ "again": {
+  "meaning": "Din nou / Repetați",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261111_131306_247.npy)",
+  "confidence": 1.0,
+  "frames": 24
+ },
+ "understand": {
+  "meaning": "A înțelege",
+  "method": "dba",
+  "source": "DBA din 20 înregistrări (bază rec_20261109_162535_369.npy)",
+  "confidence": 1.0,
+  "frames": 23
+ },
+ "help": {
+  "meaning": "Ajutor / A ajuta",
+  "method": "dba",
+  "source": "DBA din 20 înregistrări (bază rec_20261104_144047_282.npy)",
+  "confidence": 1.0,
+  "frames": 15
+ },
+ "need": {
+  "meaning": "A avea nevoie",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261102_173135_583.npy)",
+  "confidence": 1.0,
+  "frames": 21
+ },
+ "me": {
+  "meaning": "Eu / Pe mine",
+  "method": "dba",
+  "source": "DBA din 21 înregistrări (bază rec_20261109_163008_432.npy)",
+  "confidence": 1.0,
+  "frames": 14
+ },
+ "i": {
+  "meaning": "Eu",
+  "method": "dba",
+  "source": "DBA din 21 înregistrări (bază rec_20261109_163249_494.npy)",
+  "confidence": 1.0,
+  "frames": 18
+ },
+ "you": {
+  "meaning": "Tu / Dumneavoastră",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261111_131407_580.npy)",
+  "confidence": 1.0,
+  "frames": 16
+ },
+ "my": {
+  "meaning": "Meu / Mea",
+  "method": "dba",
+  "source": "DBA din 14 înregistrări (bază rec_20261111_122607_559.npy)",
+  "confidence": 0.6,
+  "frames": 13
+ },
+ "child": {
+  "meaning": "Copil",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261111_131642_360.npy)",
+  "confidence": 1.0,
+  "frames": 15
+ },
+ "sick": {
+  "meaning": "Bolnav",
+  "method": "dba",
+  "source": "DBA din 17 înregistrări (bază rec_20261111_140007_142.npy)",
+  "confidence": 1.0,
+  "frames": 14
+ },
+ "hurt": {
+  "meaning": "Durere / A durea",
+  "method": "dba",
+  "source": "DBA din 20 înregistrări (bază rec_20261109_163826_850.npy)",
+  "confidence": 0.999,
+  "frames": 14
+ },
+ "headache": {
+  "meaning": "Durere de cap",
+  "method": "dba",
+  "source": "DBA din 19 înregistrări (bază rec_20261111_122751_666.npy)",
+  "confidence": 1.0,
+  "frames": 16
+ },
+ "sorethroat": {
+  "meaning": "Durere de gât",
+  "method": "dba",
+  "source": "DBA din 21 înregistrări (bază rec_20261109_161626_004.npy)",
+  "confidence": 0.995,
+  "frames": 15
+ },
+ "cough": {
+  "meaning": "Tuse",
+  "method": "dba",
+  "source": "DBA din 22 înregistrări (bază rec_20261109_161910_726.npy)",
+  "confidence": 0.999,
+  "frames": 18
+ },
+ "cold": {
+  "meaning": "Răceală / Frig",
+  "method": "dba",
+  "source": "DBA din 17 înregistrări (bază rec_20261111_140202_598.npy)",
+  "confidence": 1.0,
+  "frames": 9
+ },
+ "hot": {
+  "meaning": "Febră / Cald",
+  "method": "dba",
+  "source": "DBA din 17 înregistrări (bază rec_20261111_131933_389.npy)",
+  "confidence": 1.0,
+  "frames": 17
+ },
+ "vomit": {
+  "meaning": "A vomita",
+  "method": "dba",
+  "source": "DBA din 20 înregistrări (bază rec_20261109_164918_113.npy)",
+  "confidence": 1.0,
+  "frames": 12
+ },
+ "tired": {
+  "meaning": "Obosit",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261111_132004_718.npy)",
+  "confidence": 0.999,
+  "frames": 17
+ },
+ "sleep": {
+  "meaning": "A dormi",
+  "method": "dba",
+  "source": "DBA din 19 înregistrări (bază rec_20261111_123137_195.npy)",
+  "confidence": 0.999,
+  "frames": 22
+ },
+ "allergy": {
+  "meaning": "Alergie",
+  "method": "dba",
+  "source": "DBA din 20 înregistrări (bază rec_20261109_165120_087.npy)",
+  "confidence": 1.0,
+  "frames": 18
+ },
+ "head": {
+  "meaning": "Cap",
+  "method": "dba",
+  "source": "DBA din 19 înregistrări (bază rec_20261111_123411_282.npy)",
+  "confidence": 0.998,
+  "frames": 19
+ },
+ "stomach": {
+  "meaning": "Stomac",
+  "method": "dba",
+  "source": "DBA din 20 înregistrări (bază rec_20261109_162050_178.npy)",
+  "confidence": 1.0,
+  "frames": 14
+ },
+ "back": {
+  "meaning": "Spate",
+  "method": "dba",
+  "source": "DBA din 21 înregistrări (bază rec_20261109_164029_812.npy)",
+  "confidence": 1.0,
+  "frames": 17
+ },
+ "arm": {
+  "meaning": "Braț",
+  "method": "dba",
+  "source": "DBA din 19 înregistrări (bază rec_20261111_123605_798.npy)",
+  "confidence": 0.999,
+  "frames": 21
+ },
+ "heart": {
+  "meaning": "Inimă / Piept",
+  "method": "dba",
+  "source": "DBA din 20 înregistrări (bază rec_20261109_165505_262.npy)",
+  "confidence": 1.0,
+  "frames": 19
+ },
+ "now": {
+  "meaning": "Acum / Azi",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261111_132342_383.npy)",
+  "confidence": 1.0,
+  "frames": 15
+ },
+ "yesterday": {
+  "meaning": "Ieri",
+  "method": "dba",
+  "source": "DBA din 19 înregistrări (bază rec_20261111_123932_274.npy)",
+  "confidence": 0.993,
+  "frames": 17
+ },
+ "morning": {
+  "meaning": "Dimineață",
+  "method": "dba",
+  "source": "DBA din 19 înregistrări (bază rec_20261111_124123_702.npy)",
+  "confidence": 1.0,
+  "frames": 30
+ },
+ "night": {
+  "meaning": "Noapte",
+  "method": "dba",
+  "source": "DBA din 17 înregistrări (bază rec_20261109_165756_084.npy)",
+  "confidence": 0.999,
+  "frames": 14
+ },
+ "day": {
+  "meaning": "Zi",
+  "method": "dba",
+  "source": "DBA din 14 înregistrări (bază rec_20261111_140924_909.npy)",
+  "confidence": 1.0,
+  "frames": 23
+ },
+ "week": {
+  "meaning": "Săptămână",
+  "method": "dba",
+  "source": "DBA din 19 înregistrări (bază rec_20261111_122140_654.npy)",
+  "confidence": 1.0,
+  "frames": 16
+ },
+ "month": {
+  "meaning": "Lună",
+  "method": "dba",
+  "source": "DBA din 17 înregistrări (bază rec_20261111_132510_537.npy)",
+  "confidence": 1.0,
+  "frames": 22
+ },
+ "ago": {
+  "meaning": "În urmă",
+  "method": "dba",
+  "source": "DBA din 20 înregistrări (bază rec_20261109_164337_510.npy)",
+  "confidence": 1.0,
+  "frames": 8
+ },
+ "since": {
+  "meaning": "De când",
+  "method": "dba",
+  "source": "DBA din 19 înregistrări (bază rec_20261111_124448_416.npy)",
+  "confidence": 1.0,
+  "frames": 25
+ },
+ "one": {
+  "meaning": "Unu",
+  "method": "dba",
+  "source": "DBA din 16 înregistrări (bază rec_20261111_132829_217.npy)",
+  "confidence": 1.0,
+  "frames": 11
+ },
+ "two": {
+  "meaning": "Doi",
+  "method": "dba",
+  "source": "DBA din 21 înregistrări (bază rec_20261109_164616_902.npy)",
+  "confidence": 1.0,
+  "frames": 12
+ },
+ "three": {
+  "meaning": "Trei",
+  "method": "dba",
+  "source": "DBA din 19 înregistrări (bază rec_20261111_142133_912.npy)",
+  "confidence": 1.0,
+  "frames": 15
+ },
+ "many": {
+  "meaning": "Mult / Mulți",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261111_124925_276.npy)",
+  "confidence": 1.0,
+  "frames": 19
+ },
+ "better": {
+  "meaning": "Mai bine",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261111_122347_770.npy)",
+  "confidence": 1.0,
+  "frames": 20
+ },
+ "medicine": {
+  "meaning": "Medicament",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261111_134923_096.npy)",
+  "confidence": 0.989,
+  "frames": 21
+ },
+ "take": {
+  "meaning": "A lua",
+  "method": "dba",
+  "source": "DBA din 22 înregistrări (bază rec_20261109_162417_618.npy)",
+  "confidence": 1.0,
+  "frames": 19
+ },
+ "eat": {
+  "meaning": "A mânca",
+  "method": "dba",
+  "source": "DBA din 16 înregistrări (bază rec_20261111_135222_130.npy)",
+  "confidence": 0.995,
+  "frames": 14
+ },
+ "drink": {
+  "meaning": "A bea",
+  "method": "dba",
+  "source": "DBA din 15 înregistrări (bază rec_20261111_140317_393.npy)",
+  "confidence": 0.999,
+  "frames": 16
+ },
+ "water": {
+  "meaning": "Apă",
+  "method": "dba",
+  "source": "DBA din 16 înregistrări (bază rec_20261111_140658_938.npy)",
+  "confidence": 1.0,
+  "frames": 13
+ },
+ "what": {
+  "meaning": "Ce",
+  "method": "dba",
+  "source": "DBA din 18 înregistrări (bază rec_20261111_135737_978.npy)",
+  "confidence": 1.0,
+  "frames": 15
+ }
+}
