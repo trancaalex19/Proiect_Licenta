@@ -717,6 +717,22 @@ export class Retargeter {
     return worst;
   }
 
+  armReport(D) {
+    // pătrunderea maximă (cm) a brațelor (cot și antebraț, cu mâneca ~3 cm) în suprafața din față
+    // a trunchiului; doar pentru verificare (?bodycheck)
+    const body = this.fk(D);
+    let worst = 0, where = '';
+    for (const s of SIDES) {
+      const e = body.pos[s + 'LowerArm'], w = body.pos[s + 'Hand'], u = body.pos[s + 'UpperArm'];
+      const pts = { [s[0] + 'Cot']: e, [s[0] + 'Antebrat']: e.clone().lerp(w, 0.5), [s[0] + 'Brat']: u.clone().lerp(e, 0.6) };
+      for (const [name, p] of Object.entries(pts)) {
+        const v = this.surfacePush(p, 0.03, body);
+        if (v && v.length() * 100 > worst) { worst = v.length() * 100; where = name; }
+      }
+    }
+    return { worst, where };
+  }
+
   applyHandSpec(arm, s, hs, t, time, body, ctx) {
     // Corecțiile din signs.js pentru o mână, înainte de IK: decalaj constant, mișcări adăugate
     // (cerc, bătăi, frecare, tremur, îndoirea încheieturii), orientarea impusă a palmei, pivot în cot.

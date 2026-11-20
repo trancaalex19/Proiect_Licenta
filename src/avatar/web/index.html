@@ -18,6 +18,10 @@
   #status { color: var(--muted); margin-left: auto; font-size: 13px; }
   #subtitle { position: fixed; left: 0; right: 0; bottom: 28px; text-align: center; font-size: 30px;
               font-weight: 600; text-shadow: 0 1px 0 #fff; pointer-events: none; }
+  /* propoziție: semnele (glose) sub text, cel redat acum evidențiat */
+  #subtitle .gloss { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px;
+                     font-size: 18px; font-weight: 500; color: var(--muted); }
+  #subtitle .gloss .current { color: var(--accent); font-weight: 700; }
 </style>
 <script type="importmap">
 { "imports": {
@@ -33,6 +37,7 @@
   <button id="prev" title="Semnul anterior (săgeată stânga sau P)">◀ Anterior</button>
   <label>Semn <select id="word"></select></label>
   <button id="next" title="Semnul următor (săgeată dreapta sau N)">Următor ▶</button>
+  <label>Propoziție <select id="sentence"><option value="">—</option></select></label>
   <button id="play" title="Redă din nou (spațiu)">Redă</button>
   <label><input type="checkbox" id="loop"> în buclă</label>
   <label title="Scheletul MediaPipe al înregistrării, lângă avatar (albastru = mâna stângă a semnatarului, portocaliu = dreapta)"><input type="checkbox" id="points"> puncte</label>

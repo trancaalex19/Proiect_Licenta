@@ -7,7 +7,8 @@ Server local pentru pagina cu avatarul (doar biblioteca standard; merge și pe R
 
 Servește: pagina (src/avatar/web/), mișcările semnelor (/motion/<cuvânt>.json, din
 data/avatar_motion/) și personajul (/avatar.vrm, din models/avatar/).
-Pagina acceptă ?word=hurt (semnul de redat), ?t=1.2 (oprit la secunda 1.2, pentru capturi),
+Pagina acceptă ?word=hurt (semnul de redat), ?sentence=you,hurt,what (semnele unei propoziții, legate
+între ele; propozițiile de test sunt în web/sentences.js), ?t=1.2 (oprit la secunda 1.2, pentru capturi),
 ?points (scheletul din date lângă avatar) și ?check (în consolă: eroarea de direcție pe fiecare os).
 """
 import argparse

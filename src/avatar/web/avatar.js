@@ -7,12 +7,17 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { VRMLoaderPlugin, VRMUtils } from '@pixiv/three-vrm';
 import { ARM_POINTS, BONE_ORDER, Retargeter, SIDES, isHair, mid, seg, vec } from './retarget.js';
 import { HANDSHAPES, SIGNS } from './signs.js';
+import { SENTENCES } from './sentences.js';
 import { tightenShirt } from './outfit.js';
 
 const V3 = THREE.Vector3;
 
 const TRANSITION = 0.45;   // s: din repaus până la primul cadru al semnului și înapoi
 const HOLD = 0.6;          // s: pauză în repaus după semn (la redarea în buclă)
+// Într-o propoziție, din poza finală a unui semn în cea de început a următorului: mâinile se
+// deplasează cu ~HAND_SPEED (m/s), dar tranziția durează cel puțin / cel mult BETWEEN (s)
+const HAND_SPEED = 1.0;
+const BETWEEN = [0.25, 0.6];
 // Netezire exponențială a rotațiilor (constanta de timp, s): elimină tremurul și smuciturile
 // dintre cadre; întârzierea introdusă e de ordinul constantei.
 const SMOOTHING = 0.05;
@@ -20,7 +25,7 @@ const HAND_EDGES = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 
   [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20]];
 
 const params = new URLSearchParams(location.search);
-const ui = Object.fromEntries(['word', 'play', 'loop', 'speed', 'points', 'status', 'subtitle']
+const ui = Object.fromEntries(['word', 'sentence', 'play', 'loop', 'speed', 'points', 'status', 'subtitle']
   .map(id => [id, document.getElementById(id)]));
 
 // ---------------------------------------------------------------- scena
@@ -126,13 +131,20 @@ function resampleMotion(motion, fps = 30) {
   return { ...motion, frames, fps: (m - 1) / duration };
 }
 
-function buildTimeline(original) {
+async function timelineFor(item) {
+  // pentru verificări (?render, ?bodycheck): un cuvânt sau o propoziție scrisă „a-b-c”
+  const motions = await Promise.all(item.split('-').map(async w => (await fetch(`/motion/${w}.json`)).json()));
+  return buildTimeline(...motions);
+}
+
+function signKeys(original) {
+  // Pozele avatarului pentru fiecare cadru al unui semn (t de la 0, fără repaus)
   const spec = SIGNS[original.word] ?? {};
   const copy = JSON.parse(JSON.stringify(original));
   applyHolds(copy, spec);
   const motion = resampleMotion(copy);
   const stats = retarget.motionStats(motion);
-  const rest = retarget.rest, n = motion.frames.length;
+  const n = motion.frames.length;
   const context = i => ({ spec, t: n > 1 ? i / (n - 1) : 0, time: i / motion.fps });
   let pivot = null;
   if (SIDES.some(s => spec[s]?.pivot)) {
@@ -141,13 +153,37 @@ function buildTimeline(original) {
     retarget.framePose(motion.frames[mid], stats, { ...context(mid), collect });
     pivot = collect;
   }
-  const keys = [{ t: 0, pose: rest, ease: true }];
-  motion.frames.forEach((frame, i) => keys.push({
-    t: TRANSITION + i / motion.fps, pose: retarget.framePose(frame, stats, { ...context(i), pivot }), frame,
-    ease: i === motion.frames.length - 1 }));
-  const end = keys[keys.length - 1].t + TRANSITION;
+  const keys = motion.frames.map((frame, i) => ({
+    t: i / motion.fps, pose: retarget.framePose(frame, stats, { ...context(i), pivot }), frame, stats }));
+  return { keys, length: (n - 1) / motion.fps, motion, stats };
+}
+
+function transitionTime(a, b) {
+  // cât durează trecerea între două poze: după cea mai mare distanță parcursă de o mână
+  const pa = retarget.fk(a.D).pos, pb = retarget.fk(b.D).pos;
+  const distance = Math.max(...SIDES.map(s => pa[s + 'Hand'].distanceTo(pb[s + 'Hand'])));
+  return THREE.MathUtils.clamp(distance / HAND_SPEED, ...BETWEEN);
+}
+
+function buildTimeline(...originals) {
+  // Unul sau mai multe semne (o propoziție): din repaus în primul semn, apoi din poza finală a
+  // fiecărui semn direct în poza de început a următorului (fără repaus între ele; durata după
+  // distanța parcursă de mâini, vezi HAND_SPEED),
+  // iar la sfârșit înapoi în repaus. `spans` = intervalul fiecărui semn (pentru subtitrare).
+  const rest = retarget.rest, keys = [{ t: 0, pose: rest, ease: true }], spans = [];
+  let start = TRANSITION, first = null;
+  originals.forEach((original, k) => {
+    const sign = signKeys(original);
+    first ??= sign;
+    if (k > 0) start += transitionTime(keys[keys.length - 1].pose, sign.keys[0].pose);
+    for (const key of sign.keys) keys.push({ ...key, t: start + key.t, word: k });
+    keys[keys.length - 1].ease = true;   // tranziție lină spre următorul semn / repaus
+    spans.push([start, start + sign.length]);
+    start += sign.length;
+  });
+  const end = start + TRANSITION;
   keys.push({ t: end, pose: rest }, { t: end + HOLD, pose: rest });
-  return { keys, duration: end + HOLD, motion, stats };
+  return { keys, duration: end + HOLD, motion: first.motion, stats: first.stats, spans };
 }
 
 function sample(timeline, t) {
@@ -157,7 +193,8 @@ function sample(timeline, t) {
   const a = keys[i], b = keys[i + 1];
   let f = THREE.MathUtils.clamp((t - a.t) / (b.t - a.t), 0, 1);
   if (a.ease) f = f * f * (3 - 2 * f);   // tranziție lină din/în repaus
-  return { pose: blendPose(a.pose, b.pose, f), frame: f < 0.5 ? a.frame : b.frame };
+  const near = f < 0.5 ? a : b;
+  return { pose: blendPose(a.pose, b.pose, f), frame: near.frame, stats: near.stats };
 }
 
 // ---------------------------------------------------------------- punctele din date (verificare)
@@ -209,16 +246,53 @@ async function backtranslate(words) {
 
 // ---------------------------------------------------------------- redare
 let timeline = null, t = 0, playing = false, shown = null, blinkTimer = 2;
+let sentence = null;   // propoziția redată: { gloss, text, meanings, current }
 
 async function loadWord(word) {
   const motion = await (await fetch(`/motion/${word}.json`)).json();
   const started = performance.now();
   timeline = buildTimeline(motion);
   console.info(`semnul ${word} calculat în ${Math.round(performance.now() - started)} ms`);
+  sentence = null;
   ui.subtitle.textContent = motion.meaning;
   ui.status.textContent = `${motion.word}: ${motion.source}, încredere ${motion.confidence}, ${motion.frames.length} cadre`;
   t = 0;
   playing = true;
+}
+
+async function loadSentence(gloss, text = null) {
+  // Semnele propoziției unul după altul (buildTimeline); cuvintele fără semn sunt sărite
+  const motions = [];
+  for (const word of gloss) {
+    const response = await fetch(`/motion/${word}.json`);
+    if (response.ok) motions.push(await response.json());
+    else console.warn(`fără semn pentru „${word}”`);
+  }
+  if (!motions.length) return;
+  const started = performance.now();
+  timeline = buildTimeline(...motions);
+  console.info(`propoziția ${gloss.join(' ')} calculată în ${Math.round(performance.now() - started)} ms`);
+  sentence = { gloss: motions.map(m => m.word), meanings: motions.map(m => m.meaning), text, current: null };
+  ui.status.textContent = `propoziție: ${sentence.gloss.length} semne, ${timeline.duration.toFixed(1)} s`;
+  t = 0;
+  playing = true;
+}
+
+function showSentence(time) {
+  // Subtitrarea: textul în română, iar dedesubt semnele (glose), cu cel curent evidențiat
+  const k = timeline.spans.findIndex(([a, b]) => time >= a - BETWEEN[0] / 2 && time <= b + BETWEEN[0] / 2);
+  if (k === sentence.current && ui.subtitle.childElementCount) return;
+  sentence.current = k;
+  const line = document.createElement('div');
+  line.className = 'gloss';
+  sentence.gloss.forEach((word, i) => {
+    const span = document.createElement('span');
+    span.textContent = sentence.meanings[i].split(' / ')[0];
+    span.title = word;
+    if (i === k) span.className = 'current';
+    line.append(span);
+  });
+  ui.subtitle.replaceChildren(...(sentence.text ? [Object.assign(document.createElement('div'), { textContent: sentence.text })] : []), line);
 }
 
 function frameCamera() {
@@ -253,7 +327,8 @@ function animate() {
     const alpha = params.has('t') || !shown ? 1 : 1 - Math.exp(-dt / SMOOTHING);
     shown = shown ? blendPose(shown, s.pose, alpha) : s.pose;
     retarget.apply(shown);
-    drawPoints(s.frame, timeline?.stats);
+    drawPoints(s.frame, s.stats ?? timeline?.stats);
+    if (sentence) showSentence(t);
     blinkTimer -= dt;   // clipit natural, la ~4 s
     if (blinkTimer < 0) blinkTimer = 3 + Math.random() * 2;
     vrm.expressionManager?.setValue('blink', blinkTimer < 0.15 ? 1 : 0);
@@ -304,13 +379,27 @@ async function main() {
   const index = await (await fetch('/motion/index.json')).json();
   for (const [word, info] of Object.entries(index)) ui.word.add(new Option(`${info.meaning} (${word})`, word));
   ui.word.value = params.get('word') ?? Object.keys(index)[0];
-  ui.word.onchange = () => loadWord(ui.word.value);
+  ui.word.onchange = () => { ui.sentence.value = ''; loadWord(ui.word.value); };
+  // propoziții de test (sentences.js); ?sentence=you,hurt,what = orice înșiruire de semne
+  // (grupate pe teme)
+  const groups = new Map();
+  SENTENCES.forEach((s, i) => {
+    const group = s.group ?? 'Altele';
+    if (!groups.has(group)) groups.set(group, ui.sentence.appendChild(Object.assign(document.createElement('optgroup'), { label: group })));
+    groups.get(group).append(new Option(s.text, i));
+  });
+  ui.sentence.onchange = () => {
+    const s = SENTENCES[ui.sentence.value];
+    if (s) loadSentence(s.gloss, s.text);
+    document.activeElement?.blur();
+  };
   ui.play.onclick = () => { t = 0; playing = true; };
   // trecerea la semnul anterior / următor (butoane sau taste), cu redare automată
   const step = delta => {
     const n = ui.word.options.length;
     ui.word.selectedIndex = (ui.word.selectedIndex + delta + n) % n;
     document.activeElement?.blur();   // spațiul să nu mai „apese” butonul rămas selectat
+    ui.sentence.value = '';
     loadWord(ui.word.value);
   };
   document.getElementById('prev').onclick = () => step(-1);
@@ -324,7 +413,13 @@ async function main() {
   if (params.has('points')) ui.points.checked = true;
   ui.points.onchange = frameCamera;
   frameCamera();
-  await loadWord(ui.word.value);
+  if (params.has('sentence')) {
+    // textul în română, dacă propoziția e una din sentences.js
+    const gloss = params.get('sentence').split(','), i = SENTENCES.findIndex(s => s.gloss.join() === gloss.join());
+    if (i >= 0) ui.sentence.value = i;
+    await loadSentence(gloss, SENTENCES[i]?.text);
+  }
+  else await loadWord(ui.word.value);
   if (params.has('t')) { t = Number(params.get('t')); playing = false; }   // cadru fix, pentru capturi
   if (params.has('check')) {
     // Verificare: pentru fiecare cuvânt din ?check=a,b (sau doar cel curent), raportul din consolă
@@ -335,16 +430,31 @@ async function main() {
     }
   }
   if (params.has('bodycheck')) {
-    // ?bodycheck=a,b (gol = toate): pătrunderea maximă a mâinilor în corp (cm) pe durata semnului
+    // ?bodycheck=a,b (gol = toate; propoziții „a-b-c”): pătrunderea maximă a mâinilor și a brațelor
+    // în corp (cm) și cel mai mare salt al cotului / încheieturii de la un cadru la altul (cm), pe
+    // redarea la 30 de cadre/s, cu tot cu tranzițiile; ?trace scrie și pozițiile la fiecare cadru
     const words = params.get('bodycheck') ? params.get('bodycheck').split(',') : Object.keys(index);
     for (const word of words) {
-      const tl = buildTimeline(await (await fetch(`/motion/${word}.json`)).json());
-      let worst = 0, at = 0;
-      for (const key of tl.keys) {
+      const tl = await timelineFor(word);
+      let worst = 0, at = 0, arm = { worst: 0, where: '-' }, armAt = 0, jump = 0, jumpAt = 0, prev = null;
+      for (let time = 0; time <= tl.duration; time += 1 / 30) {
+        const key = { ...sample(tl, time), t: time };
         const cm = retarget.bodyReport(key.pose.D);
         if (cm > worst) { worst = cm; at = key.t; }
+        const a = retarget.armReport(key.pose.D);
+        if (a.worst > arm.worst) { arm = a; armAt = key.t; }
+        const pos = retarget.fk(key.pose.D).pos;
+        if (prev) for (const b of ['rightLowerArm', 'rightHand', 'leftLowerArm', 'leftHand']) {
+          const d = pos[b].distanceTo(prev.pos[b]) * 100;
+          if (d > jump) { jump = d; jumpAt = key.t; }
+        }
+        prev = { pos };
+        if (params.has('trace')) {
+          const f = v => v.toArray().map(x => x.toFixed(3)).join(',');
+          console.log(`TRACE ${word} ${key.t.toFixed(3)} rE ${f(pos.rightLowerArm)} rW ${f(pos.rightHand)} lE ${f(pos.leftLowerArm)} lW ${f(pos.leftHand)}`);
+        }
       }
-      console.log(`BODY ${word} ${worst.toFixed(1)} ${at.toFixed(2)}`);
+      console.log(`BODY ${word} ${worst.toFixed(1)} ${at.toFixed(2)} ARM ${arm.worst.toFixed(1)} ${arm.where || '-'} ${armAt.toFixed(2)} JUMP ${jump.toFixed(1)} ${jumpAt.toFixed(2)}`);
     }
     console.log('BODY _done');
   }
@@ -368,7 +478,7 @@ async function main() {
       camera.lookAt(target);
     }
     for (const word of params.get('render').split(',')) {
-      const tl = buildTimeline(await (await fetch(`/motion/${word}.json`)).json());
+      const tl = await timelineFor(word);
       for (const at of ats) {
         const pose = sample(tl, TRANSITION + at * (tl.duration - 2 * TRANSITION - HOLD)).pose;
         retarget.apply(pose);

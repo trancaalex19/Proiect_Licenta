@@ -76,6 +76,8 @@ HANDSHAPES.flatO = { Thumb: [40, 45, 25, 20], Index: [60, 35, 25, 0], Middle: [6
 // Coordonatele sunt în reperul pieptului avatarului: X = stânga avatarului, Y = sus, Z = în față.
 // cotul jos și ușor în față (mâna la bărbie / gură): nu lateral și sus
 const ELBOW_FRONT = [-0.35, -1, 0.5];
+// cotul jos, mai în lateral: antebrațul nu trece prin piept (better)
+const ELBOW_SIDE = [-0.8, -1, 0.45];
 const circleOnChest = { type: 'circle', radius: 0.035, turns: 2, t: [0.1, 0.95] };
 export const SIGNS = {
   // pumn strâns, brațul pe loc; încheietura se îndoaie în jos de două ori
@@ -125,10 +127,10 @@ export const SIGNS = {
     path: [[0, 'jaw_r', [0, 0, 0]], [0.3, 'jaw_r', [0, 0, 0]], [0.75, 'ear_r', [0, 0.03, 0.02]], [1, 'ear_r', [0, 0.03, 0.02]]] }, left: { rest: true } },
   stomach: { right: { shape: 'B', contact: true, via: 'palm', path: [[0, 'stomach', [0, 0, 0]]], orient: { dir: [1, 0, 0], side: [0, 1, 0] },
     motion: [{ type: 'tap', dir: [0, 0, 1], amp: 0.04, count: 2, t: [0.15, 0.95] }] }, left: { rest: true } },
-  // ca la scărpinat pe spate: cotul ridicat în față, pumnul deasupra umărului, degetul mare spre spate
-  // pumnul vertical (încheieturile degetelor în sus), palma spre cap; degetul mare iese deasupra pumnului
-  // (perpendicular pe el, nu peste degete) și arată spre spate
-  back: { right: { shape: 'thumbsUp', via: 'knuckles', path: [[0, 'shoulder_r', [-0.04, 0.09, 0]]], pole: [-0.25, 0.35, 1],
+  // pumnul în fața umărului drept, puțin deasupra lui, cotul jos și în față (nu ridicat: cotul sus sărea
+  // între soluții la fiecare bătaie și ieșea pielea prin mânecă); pumnul vertical (încheieturile degetelor
+  // în sus), palma spre cap; degetul mare iese deasupra pumnului (perpendicular pe el) și arată spre spate
+  back: { right: { shape: 'thumbsUp', via: 'knuckles', path: [[0, 'shoulder_r', [-0.02, 0.1, 0.1]]], pole: [-0.4, -0.7, 0.8],
     orient: { dir: [0, 1, 0.15], side: [0, 0, -1] }, motion: [{ type: 'tap', dir: [0, 0, -1], amp: 0.04, count: 2, t: [0.2, 1] }] }, left: { rest: true } },
   // antebrațul stâng orizontal în fața corpului, palma în jos; palma dreaptă alunecă pe el
   // (deasupra mânecii) de la cot spre încheietură
@@ -157,26 +159,31 @@ export const SIGNS = {
       orient: { dir: 'arc', side: [-1, 0, 0] } } },
   night: { left: { hold: 0.5 }, right: { shape: 'bentB' }, touch: [0.5, 1] },
   // DAY (coborâre, 2.2 s). Cotul drept fix (balama) la nivelul plexului, în fața pieptului, sprijinit
-  // deasupra dosului palmei stângi (~1.5 cm). Stânga: antebraț orizontal, palma plată în jos. Dreapta: D.
+  // deasupra degetelor stângi (~1.5 cm; pe mijlocul palmei, cotul stâng ajungea în piept).
+  // Stânga: antebraț orizontal, palma plată în jos. Dreapta: D.
   // Antebrațul drept stă vertical (arătătorul în sus), apoi coboară din cot ~90° spre stânga avatarului
   // până la orizontal, paralel și imediat deasupra antebrațului stâng (degetele îndoite în jos); apoi stă
   // nemișcat ~0.4 s (arcul se termină la t = 0.82).
   day: {
-    left: { shape: 'B', active: true, via: 'back', path: [[0, 'other.elbow', [0, -0.055, 0]]], orient: { dir: [-1, 0, 0.1], side: [0, 0, -1] } },
-    right: { shape: 'D', arc: { upper: [-0.2, -0.7, 0.7], from: [-0.03, 1, 0.08], to: [1, 0, 0.1], t: [0.15, 0.82] },
+    // cotul stâng în afară și în față: antebrațul stâng stă în fața tricoului (altfel cotul intra în piept)
+    left: { shape: 'B', active: true, via: 'fingers', path: [[0, 'other.elbow', [0, -0.055, 0]]], orient: { dir: [-1, 0, 0.1], side: [0, 0, -1] },
+      pole: [0.7, -0.5, 0.6] },
+    right: { shape: 'D', arc: { upper: [-0.15, -0.6, 0.8], from: [-0.03, 1, 0.08], to: [1, 0, 0.1], t: [0.15, 0.82] },
       orient: { dir: 'arc', side: [0, 0, -1] } } },
   week: { left: { shape: 'B', active: true, via: 'palm', path: [[0, 'chest', [0.02, -0.17, 0.11]]], orient: { dir: [-0.3, 0, 1], side: [1, 0, 0] } },
-    // podul palmei drepte freacă palma stângă, pe partea de sus (palma stângă e în sus)
-    right: { shape: 'one', via: 'heel', orient: { dir: [0.4, 0, 1], side: [1, 0, 0] },
-      path: [[0, 'other.heel', [0, 0.012, 0]], [0.15, 'other.heel', [0, 0.012, 0]], [0.8, 'other.fingers', [0, 0.012, 0]], [1, 'other.fingers', [0, 0.012, 0]]] } },
+    // degetele strânse ale mâinii drepte (palma în jos) alunecă pe palma stângă, de la podul palmei spre
+    // degete (punctul de contact = vârful mijlociului îndoit, cel mai de jos: nu trece prin palma stângă)
+    right: { shape: 'one', via: 'middle', orient: { dir: [0.4, 0, 1], side: [1, 0, 0] },
+      path: [[0, 'other.heel', [0, 0.006, 0]], [0.15, 'other.heel', [0, 0.006, 0]], [0.8, 'other.fingers', [0, 0.006, 0]], [1, 'other.fingers', [0, 0.006, 0]]] } },
   month: { left: { hold: 0.5, shape: 'one' },
     right: { shape: 'one', via: 'index',
       path: [[0, 'other.index', [0, 0.04, 0.02]], [0.2, 'other.index', [0, 0.01, 0.02]], [0.85, 'other.knuckles', [0, -0.03, 0.02]], [1, 'other.knuckles', [0, -0.03, 0.02]]] } },
   ago: { right: { pivot: true }, left: { rest: true } },
   since: { right: { shape: 'one', offset: [0, -0.07, 0] }, left: { shape: 'one', offset: [0, -0.07, 0] } },
   two: { right: { shape: 'V' }, left: { rest: true } },
-  // palma la bărbie, apoi spre dreapta și înainte, terminând cu degetul mare în sus, văzut din profil
-  better: { right: { shape: [[0, 'B'], [0.4, 'B'], [0.8, 'thumbsUp']], contact: true, via: 'palm', pole: ELBOW_FRONT,
+  // palma la bărbie, apoi spre dreapta și înainte, terminând cu degetul mare în sus, văzut din profil;
+  // cotul jos și în lateral (ELBOW_SIDE: în față atingea pieptul și sărea)
+  better: { right: { shape: [[0, 'B'], [0.4, 'B'], [0.8, 'thumbsUp']], contact: true, via: 'palm', pole: ELBOW_SIDE,
     orient: { dir: [0.2, 0, 1], side: [0, 1, 0], at: 0.8 },
     path: [[0, 'chin', [0, -0.01, 0]], [0.35, 'chin', [0, -0.01, 0]], [1, 'chin', [-0.14, 0.03, 0.17]]] }, left: { rest: true } },
   // palma stângă în sus, în fața corpului; mijlociul drept face cercuri mici în ea
@@ -190,8 +197,9 @@ export const SIGNS = {
     motion: [{ type: 'tap', dir: [0, 0, 1], amp: 0.05, count: 2, t: [0.15, 0.95] }] }, left: { rest: true } },
   // mâna în C se înclină spre gură, iar degetul mare rămâne pe loc, sub buza de jos
   drink: { right: { shape: 'C', via: 'thumb', path: [[0, 'chin', [0, 0.005, 0.012]]], pole: ELBOW_FRONT }, left: { rest: true } },
-  // W cu degetele în sus, palma spre stânga; vârful arătătorului atinge bărbia de două ori
-  water: { right: { shape: 'W', contact: true, via: 'index', path: [[0, 'chin', [-0.008, 0, 0]]], pole: ELBOW_FRONT,
+  // W cu degetele în sus, palma spre stânga; vârful arătătorului atinge bărbia de două ori;
+  // cotul mult în lateral: antebrațul trece în diagonală prin fața pieptului, nu prin el
+  water: { right: { shape: 'W', contact: true, via: 'index', path: [[0, 'chin', [-0.008, 0, 0]]], pole: [-1.5, -0.8, 0.3],
     orient: { dir: [0, 1, 0.1], side: [0, 0, -1] },
     motion: [{ type: 'tap', dir: [0, -0.4, 1], amp: 0.02, count: 2, t: [0.2, 1] }] }, left: { rest: true } },
 };
