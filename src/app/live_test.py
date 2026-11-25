@@ -28,7 +28,7 @@ import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
 
-from src.app.camera import (make_holistic, open_camera, place_windows, process_frame,
+from src.app.camera import (camera_source, make_holistic, open_camera, place_windows, process_frame,
                             resize_for_display, smooth_fps)
 from src.app.overlay import draw_landmarks, draw_overlay, draw_segmenter
 from src.app.segmenter import SignSegmenter
@@ -44,7 +44,7 @@ FEEDBACK_SECONDS = 1.5   # cât rămâne rezultatul pe ecran înainte de următo
 def parse_args():
     parser = argparse.ArgumentParser(description='Test live ghidat')
     parser.add_argument('--rounds', type=int, default=3, help='de câte ori se cere fiecare cuvânt')
-    parser.add_argument('--camera', type=int, default=CAMERA_INDEX)
+    parser.add_argument('--camera', type=camera_source, default=CAMERA_INDEX)
     parser.add_argument('--no-guide', action='store_true', help='fără ghidul de semne')
     return parser.parse_args()
 

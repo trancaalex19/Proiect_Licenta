@@ -14,3 +14,8 @@ models/*
 # Vorbire: înregistrări de test și jurnalul transcrierilor (vocea și ce s-a spus)
 data/speech_recordings/
 data/speech_log.csv
+data/prototype_log.csv
+
+# Pachetele pentru Raspberry Pi (deploy/pi/make_stick.py --download) și rapoartele verificării
+dist/
+data/system_check/

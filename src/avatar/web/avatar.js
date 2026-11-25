@@ -25,28 +25,34 @@ const HAND_EDGES = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 
   [10, 11], [11, 12], [9, 13], [13, 14], [14, 15], [15, 16], [13, 17], [0, 17], [17, 18], [18, 19], [19, 20]];
 
 const params = new URLSearchParams(location.search);
+if (params.has('live')) document.body.classList.add('live');   // prototipul: interfața completă (index.html)
 const ui = Object.fromEntries(['word', 'sentence', 'play', 'loop', 'speed', 'points', 'status', 'subtitle']
   .map(id => [id, document.getElementById(id)]));
 
 // ---------------------------------------------------------------- scena
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+// în prototip canvasul e transparent: fundalul scenei (al interpretului) vine din pagină
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: params.has('live') });
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
-document.getElementById('scene').appendChild(renderer.domElement);
+// canvasul ia mărimea containerului #scene (tot ecranul, sau doar scena în modul ?live)
+const sceneEl = document.getElementById('scene');
+const sceneSize = () => [sceneEl.clientWidth || innerWidth, sceneEl.clientHeight || innerHeight];
+renderer.setSize(...sceneSize());
+sceneEl.appendChild(renderer.domElement);
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xeef1f5);
-const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.1, 20);
+if (!params.has('live')) scene.background = new THREE.Color(0xeef1f5);
+const camera = new THREE.PerspectiveCamera(30, sceneSize()[0] / sceneSize()[1], 0.1, 20);
 const controls = new OrbitControls(camera, renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xffffff, 0x8a90a0, 1.8));
 const sun = new THREE.DirectionalLight(0xffffff, 1.6);
 sun.position.set(0.5, 1.5, 2);
 scene.add(sun);
-addEventListener('resize', () => {
-  camera.aspect = innerWidth / innerHeight;
+new ResizeObserver(() => {
+  const [width, height] = sceneSize();
+  camera.aspect = width / height;
   camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(width, height);
   if (retarget && !params.has('shape')) frameCamera();
-});
+}).observe(sceneEl);
 
 let vrm = null, retarget = null, hairCut = null;
 
@@ -155,7 +161,18 @@ function signKeys(original) {
   }
   const keys = motion.frames.map((frame, i) => ({
     t: i / motion.fps, pose: retarget.framePose(frame, stats, { ...context(i), pivot }), frame, stats }));
-  return { keys, length: (n - 1) / motion.fps, motion, stats };
+  // signs.js `enter` / `exit`: poza de început / de final cu mâna mutată (decalaj în m pe fiecare
+  // parte), prin care trece tranziția din / spre repaus, ca brațul să ocolească trunchiul
+  const waypoint = (offsets, i) => {
+    if (!offsets) return null;
+    const moved = JSON.parse(JSON.stringify(spec));
+    for (const [side, o] of Object.entries(offsets)) {
+      const base = moved[side]?.offset ?? [0, 0, 0];
+      moved[side] = { ...moved[side], offset: base.map((x, j) => x + o[j]) };
+    }
+    return { pose: retarget.framePose(motion.frames[i], stats, { ...context(i), spec: moved, pivot }), frame: keys[i].frame, stats };
+  };
+  return { keys, length: (n - 1) / motion.fps, motion, stats, enter: waypoint(spec.enter, 0), exit: waypoint(spec.exit, n - 1) };
 }
 
 function transitionTime(a, b) {
@@ -171,16 +188,19 @@ function buildTimeline(...originals) {
   // distanța parcursă de mâini, vezi HAND_SPEED),
   // iar la sfârșit înapoi în repaus. `spans` = intervalul fiecărui semn (pentru subtitrare).
   const rest = retarget.rest, keys = [{ t: 0, pose: rest, ease: true }], spans = [];
-  let start = TRANSITION, first = null;
+  let start = TRANSITION, first = null, last = null;
   originals.forEach((original, k) => {
     const sign = signKeys(original);
     first ??= sign;
+    last = sign;
+    if (k === 0 && sign.enter) keys.push({ ...sign.enter, t: TRANSITION / 2, ease: true });
     if (k > 0) start += transitionTime(keys[keys.length - 1].pose, sign.keys[0].pose);
     for (const key of sign.keys) keys.push({ ...key, t: start + key.t, word: k });
     keys[keys.length - 1].ease = true;   // tranziție lină spre următorul semn / repaus
     spans.push([start, start + sign.length]);
     start += sign.length;
   });
+  if (last.exit) keys.push({ ...last.exit, t: start + TRANSITION / 2, ease: true });
   const end = start + TRANSITION;
   keys.push({ t: end, pose: rest }, { t: end + HOLD, pose: rest });
   return { keys, duration: end + HOLD, motion: first.motion, stats: first.stats, spans };
@@ -290,9 +310,156 @@ function showSentence(time) {
     span.textContent = sentence.meanings[i].split(' / ')[0];
     span.title = word;
     if (i === k) span.className = 'current';
+    else if (k >= 0 && i < k) span.className = 'done';
     line.append(span);
   });
   ui.subtitle.replaceChildren(...(sentence.text ? [Object.assign(document.createElement('div'), { textContent: sentence.text })] : []), line);
+}
+
+// ---------------------------------------------------------------- prototip (?live)
+// Pagina pornită de src/app/prototype.py e toată interfața: citește periodic /api/state și
+// desenează rândul curent, camera pacientului (MJPEG de la /api/camera), ultimul semn recunoscut,
+// conversația și propoziția în curs. La un mesaj nou al medicului, avatarul îi redă semnele.
+const $ = id => document.getElementById(id);
+const live = { lastId: 0, played: 0, queued: null };
+const TURN_TEXT = {
+  doctor: 'Medicul vorbește', patient: 'Pacientul semnează',
+  idle: 'Oricine poate începe',
+};
+const MIC_TEXT = { repaus: 'Vorbiți', ascultare: 'Vă ascult…', vorbire: 'Înregistrez…', transcriere: 'Transcriu…',
+                   redare: 'Se aude pacientul…' };
+const command = name => fetch(`/api/command/${name}`, { method: 'POST' }).catch(() => {});
+function el(tag, props = {}, ...children) {
+  const element = Object.assign(document.createElement(tag), props);
+  element.append(...children);
+  return element;
+}
+
+const SPEAKER_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+  + 'stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+
+function renderMessage(m) {
+  // un rând din fișa consultației: cine, ora, ce a spus, iar dedesubt semnele (în română)
+  if (m.who === 'system') return el('div', { className: 'msg system' }, el('div', { className: 'text' }, m.text));
+  const doctor = m.who === 'doctor';
+  const signs = el('div', { className: 'signs' });
+  if (m.meanings.length) signs.append(...m.meanings.map(word => el('span', {}, word)));
+  else signs.append(el('span', { className: 'unknown' }, 'niciun semn din vocabular, doar text'));
+  if (doctor && m.unknown?.length) signs.append(el('span', { className: 'unknown', title: 'Cuvinte fără semn în vocabular' },
+                                                  `fără semn: ${m.unknown.join(', ')}`));
+  if (!doctor) {
+    const listen = el('button', { type: 'button', className: 'listen', title: 'Citește din nou propoziția, cu voce' });
+    listen.innerHTML = SPEAKER_ICON;
+    listen.append('Ascultă');
+    listen.onclick = () => command(`say-${m.id}`);
+    signs.append(listen);
+  }
+  const via = doctor && m.engine ? `transcris ${m.engine === 'groq' ? 'cu Groq' : 'local'}` : '';
+  return el('div', { className: `msg ${m.who}` }, el('span', { className: 'who' }, doctor ? 'Medicul' : 'Pacientul'),
+            el('time', { title: via }, m.time), el('div', { className: 'text' }, m.text), signs);
+}
+
+async function renderLive(state) {
+  document.body.dataset.turn = state.turn;
+  document.body.classList.toggle('cam-paused', state.camera.paused);
+  $('turn').textContent = state.mic.transcribing ? 'Se transcrie ce a spus medicul'
+    : state.voice.speaking ? 'Se aude propoziția pacientului' : TURN_TEXT[state.turn];
+
+  // vocea pacientului (Piper): pornită / oprită din bara de sus; „Ascultă din nou” doar dacă există
+  const voice = state.voice;
+  document.body.classList.toggle('no-voice', !voice.available);
+  $('voiceBtn').disabled = !voice.available;
+  $('voiceBtn').setAttribute('aria-pressed', String(voice.enabled));
+  $('voiceBtn').textContent = voice.available ? 'Vocea pacientului' : 'Vocea pacientului: indisponibilă';
+  $('voiceBtn').title = voice.error ?? `Propoziția pacientului citită cu voce pentru medic (${voice.enabled ? 'pornită' : 'oprită'})`;
+  const online = state.speech.engine === 'Groq';
+  $('speechPill').textContent = online ? 'Transcriere online' : 'Transcriere locală';
+  $('speechPill').title = online ? 'Groq (internet)' : 'Whisper pe acest calculator, fără internet';
+  $('speechPill').classList.toggle('warn', !online);
+  $('camPill').textContent = `Cameră ${state.camera.fps} cadre/s`;
+  $('camPill').classList.toggle('warn', state.camera.fps < 15);
+  for (const [id, side, name] of [['handL', 'left', 'stângă'], ['handR', 'right', 'dreaptă']]) {
+    const seen = state.camera.hands[side];
+    $(id).classList.toggle('off', !seen);
+    $(id).textContent = seen ? `Mâna ${name}` : `Mâna ${name} nu se vede`;
+  }
+
+  // butonul medicului: starea microfonului și nivelul vocii
+  const mic = state.mic.state !== 'repaus' ? state.mic.state
+    : state.mic.transcribing ? 'transcriere' : state.voice.speaking ? 'redare' : 'repaus';
+  $('speak').dataset.mic = mic;
+  $('speakText').textContent = MIC_TEXT[mic];
+  $('meter').firstElementChild.style.width = mic === 'vorbire' || mic === 'ascultare'
+    ? `${Math.max(0, Math.min(1, (state.mic.level_db + 60) / 60)) * 100}%` : '0';
+
+  // ultimul semn al pacientului: cel mai probabil, cât de sigur, și celelalte două variante
+  const r = state.recognition;
+  $('recog').hidden = !r;
+  if (r) {
+    const [best, ...others] = r.top;
+    $('recog').classList.toggle('rejected', !r.accepted);
+    $('recogWord').textContent = best.meaning;
+    $('recogWord').title = best.word;
+    $('recogPct').textContent = `${Math.round(best.p * 100)}%`;
+    $('recogMeter').firstElementChild.style.width = `${best.p * 100}%`;
+    $('recogNote').textContent = r.accepted ? 'Adăugat în propoziție.'
+      : `Nesigur (sub ${Math.round(r.threshold * 100)}%), nu s-a adăugat. Repetați semnul.`;
+    $('recogTop').replaceChildren(el('li', {}, 'Alte variante:'),
+      ...others.map(t => el('li', { title: t.word }, el('b', {}, t.meaning), ` ${Math.round(t.p * 100)}%`)));
+  }
+
+  // propoziția pacientului în curs; bara = cât a trecut din pauza după care se trimite
+  const pending = state.pending;
+  $('pending').classList.toggle('active', pending.words.length > 0);
+  $('pendingTitle').textContent = pending.words.length
+    ? 'Pacientul semnează. Propoziția se trimite după o scurtă pauză.'
+    : 'Propoziția pacientului apare aici pe măsură ce semnează.';
+  $('pendingWords').replaceChildren(...pending.meanings.map(word => el('span', {}, word)));
+  $('pendingBar').firstElementChild.style.width = `${pending.progress * 100}%`;
+
+  // mesajele noi: în fir; ale medicului, și în semne
+  const fresh = state.messages.filter(m => m.id > live.lastId);
+  if (!fresh.length) return;
+  live.lastId = fresh.at(-1).id;
+  $('thread').querySelector('.empty')?.remove();
+  $('thread').append(...fresh.map(renderMessage));
+  $('thread').scrollTop = $('thread').scrollHeight;
+  const doctor = fresh.filter(m => m.who === 'doctor').at(-1);
+  if (doctor && doctor.id > live.played) await playDoctor(doctor);
+}
+
+async function playDoctor(doctor) {
+  // personajul încă se încarcă: mesajul se redă imediat după (main -> startLive)
+  if (!retarget) { live.queued = doctor; return; }
+  live.played = doctor.id;
+  if (doctor.gloss.length) await loadSentence(doctor.gloss, doctor.text);
+  else { timeline = null; sentence = null; ui.subtitle.textContent = doctor.text; }   // doar subtitrare
+}
+
+async function pollLive() {
+  let state = null;
+  try { state = await (await fetch('/api/state', { cache: 'no-store' })).json(); }
+  catch { $('turn').textContent = 'Fără legătură cu programul. Porniți python -m src.app.prototype.'; }
+  if (state) await renderLive(state);
+  setTimeout(pollLive, state?.poll_ms ?? 1000);
+}
+
+function startLive() {
+  // pornește înaintea încărcării personajului: camera și conversația apar imediat
+  $('cam').src = '/api/camera';
+  // caseta camerei ia proporțiile imaginii (4:3 pe Pi, 16:9 pe laptop): fără benzi negre
+  $('cam').addEventListener('load', e => {
+    const { naturalWidth: w, naturalHeight: h } = e.target;
+    if (w && h) $('camBox').style.setProperty('--cam-ratio', `${w} / ${h}`);
+  }, { once: true });
+  $('speak').onclick = () => command('speak');
+  $('voiceBtn').onclick = () => command('voice');
+  $('quit').onclick = () => { command('quit'); $('turn').textContent = 'Programul se oprește…'; };
+  addEventListener('keydown', e => {
+    if (e.key === ' ' && !e.repeat) { e.preventDefault(); command('speak'); }
+  });
+  ui.status.textContent = 'prototip';
+  pollLive();
 }
 
 function frameCamera() {
@@ -340,6 +507,7 @@ function animate() {
 
 async function main() {
   animate();
+  if (params.has('live')) startLive();
   const loader = new GLTFLoader();
   loader.register(parser => new VRMLoaderPlugin(parser));
   const gltf = await loader.loadAsync('/avatar.vrm');
@@ -405,6 +573,7 @@ async function main() {
   document.getElementById('prev').onclick = () => step(-1);
   document.getElementById('next').onclick = () => step(1);
   addEventListener('keydown', e => {
+    if (params.has('live')) return;              // în prototip, Space = vorbește medicul (startLive)
     if (e.target.tagName === 'SELECT') return;   // în listă, săgețile o folosesc pe ea
     if (e.key === 'ArrowRight' || e.key === 'n' || e.key === 'N') step(1);
     else if (e.key === 'ArrowLeft' || e.key === 'p' || e.key === 'P') step(-1);
@@ -419,7 +588,8 @@ async function main() {
     if (i >= 0) ui.sentence.value = i;
     await loadSentence(gloss, SENTENCES[i]?.text);
   }
-  else await loadWord(ui.word.value);
+  else if (!params.has('live')) await loadWord(ui.word.value);
+  if (live.queued) playDoctor(live.queued);   // prototipul: mesajul medicului sosit în timpul încărcării
   if (params.has('t')) { t = Number(params.get('t')); playing = false; }   // cadru fix, pentru capturi
   if (params.has('check')) {
     // Verificare: pentru fiecare cuvânt din ?check=a,b (sau doar cel curent), raportul din consolă
@@ -436,13 +606,15 @@ async function main() {
     const words = params.get('bodycheck') ? params.get('bodycheck').split(',') : Object.keys(index);
     for (const word of words) {
       const tl = await timelineFor(word);
-      let worst = 0, at = 0, arm = { worst: 0, where: '-' }, armAt = 0, jump = 0, jumpAt = 0, prev = null;
+      let worst = 0, at = 0, arm = { worst: 0, where: '-' }, armAt = 0, jump = 0, jumpAt = 0, prev = null, armSign = 0;
       for (let time = 0; time <= tl.duration; time += 1 / 30) {
         const key = { ...sample(tl, time), t: time };
         const cm = retarget.bodyReport(key.pose.D);
         if (cm > worst) { worst = cm; at = key.t; }
         const a = retarget.armReport(key.pose.D);
         if (a.worst > arm.worst) { arm = a; armAt = key.t; }
+        // brațele doar în timpul semnelor (fără tranziții)
+        if (tl.spans.some(([s0, s1]) => time >= s0 && time <= s1) && a.worst > (armSign.worst ?? 0)) armSign = { ...a, t: time };
         const pos = retarget.fk(key.pose.D).pos;
         if (prev) for (const b of ['rightLowerArm', 'rightHand', 'leftLowerArm', 'leftHand']) {
           const d = pos[b].distanceTo(prev.pos[b]) * 100;
@@ -454,7 +626,7 @@ async function main() {
           console.log(`TRACE ${word} ${key.t.toFixed(3)} rE ${f(pos.rightLowerArm)} rW ${f(pos.rightHand)} lE ${f(pos.leftLowerArm)} lW ${f(pos.leftHand)}`);
         }
       }
-      console.log(`BODY ${word} ${worst.toFixed(1)} ${at.toFixed(2)} ARM ${arm.worst.toFixed(1)} ${arm.where || '-'} ${armAt.toFixed(2)} JUMP ${jump.toFixed(1)} ${jumpAt.toFixed(2)}`);
+      console.log(`BODY ${word} ${worst.toFixed(1)} ${at.toFixed(2)} ARM ${arm.worst.toFixed(1)} ${arm.where || '-'} ${armAt.toFixed(2)} SIGN ${(armSign.worst ?? 0).toFixed(1)} ${armSign.where || '-'} ${(armSign.t ?? 0).toFixed(2)} JUMP ${jump.toFixed(1)} ${jumpAt.toFixed(2)}`);
     }
     console.log('BODY _done');
   }

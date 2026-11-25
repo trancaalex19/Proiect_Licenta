@@ -1,0 +1,2 @@
+# Scripturile pentru Raspberry Pi (bash) rămân cu capete de linie Linux și când proiectul e pe Windows
+*.sh text eol=lf

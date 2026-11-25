@@ -72,7 +72,9 @@ HANDSHAPES.flatO = { Thumb: [40, 45, 25, 20], Index: [60, 35, 25, 0], Middle: [6
 //   hold    mâna stă pe loc, în poza din date de la momentul t
 //   pivot   mișcarea doar din cot (cotul rămâne unde e la mijlocul semnului)
 //   rest / active   mâna nu participă / participă tot semnul
-// La nivelul semnului: touch [t0, t1] = mâna dreaptă atinge mâna stângă în intervalul dat.
+// La nivelul semnului: touch [t0, t1] = mâna dreaptă atinge mâna stângă în intervalul dat;
+//   enter / exit { right: [x, y, z], left: ... } = decalajul mâinii (m) în poza prin care trece
+//   tranziția din repaus în semn / din semn în repaus (brațul ocolește trunchiul, nu trece prin el).
 // Coordonatele sunt în reperul pieptului avatarului: X = stânga avatarului, Y = sus, Z = în față.
 // cotul jos și ușor în față (mâna la bărbie / gură): nu lateral și sus
 const ELBOW_FRONT = [-0.35, -1, 0.5];
@@ -89,8 +91,9 @@ export const SIGNS = {
   understand: { right: { shape: [[0, 'S'], [0.55, 'S'], [0.75, 'one']], via: 'knuckles',
     path: [[0, 'temple_r', [-0.03, 0, 0.05]]] }, left: { rest: true } },
   // 👍 cu mâna dreaptă (palma spre stânga), bate de două ori în palma stângă, care stă fixă, cu palma în sus
+  // (dreapta active: altfel pornea din repaus și sărea pe palma stângă când apărea în date)
   help: { left: { shape: 'B', active: true, via: 'palm', path: [[0, 'chest', [0, -0.13, 0.11]]], orient: { dir: [-0.3, 0, 1], side: [1, 0, 0] } },
-    right: { shape: 'thumbsUp', via: 'littleMid', path: [[0, 'other.palm', [0, 0.012, 0]]], orient: { dir: [0.2, 0, 1], side: [0, 1, 0] },
+    right: { shape: 'thumbsUp', via: 'littleMid', active: true, path: [[0, 'other.palm', [0, 0.012, 0]]], orient: { dir: [0.2, 0, 1], side: [0, 1, 0] },
       motion: [{ type: 'tap', dir: [0, 1, 0], amp: 0.04, count: 2, t: [0.15, 0.95] }] } },
   need: { right: { shape: 'X', motion: [{ type: 'flap', amp: 25, count: 2, t: [0.3, 1] }] }, left: { rest: true } },
   i: { right: { shape: 'I', via: 'wrist', path: [[0, 'chest_r', [-0.01, 0.03, 0.12]]] }, left: { rest: true } },
@@ -134,10 +137,15 @@ export const SIGNS = {
     orient: { dir: [0, 1, 0.15], side: [0, 0, -1] }, motion: [{ type: 'tap', dir: [0, 0, -1], amp: 0.04, count: 2, t: [0.2, 1] }] }, left: { rest: true } },
   // antebrațul stâng orizontal în fața corpului, palma în jos; palma dreaptă alunecă pe el
   // (deasupra mânecii) de la cot spre încheietură
+  // încheietura stângă mai aproape (x 0.02, nu -0.08) și cotul în afară și în față (pole): altfel brațul
+  // stâng era aproape întins, cotul ajungea în mijlocul pieptului și brațul intra ~6 cm în corp
   arm: {
-    left: { shape: 'B', active: true, via: 'wrist', path: [[0, 'chest', [-0.08, -0.12, 0.2]]], orient: { dir: [-1, 0, 0.15], side: [0, 0, -1] } },
-    right: { shape: 'Brelaxed', via: 'palm', orient: { dir: [0.35, -0.1, 1], side: [1, 0, -0.3] },
-      path: [[0, 'other.elbow', [0, 0.065, 0.01]], [0.2, 'other.elbow', [0, 0.065, 0.01]], [0.9, 'other.wrist', [0, 0.05, 0.01]], [1, 'other.wrist', [0, 0.05, 0.01]]] } },
+    left: { shape: 'B', active: true, via: 'wrist', path: [[0, 'chest', [0.0, -0.14, 0.30]]], orient: { dir: [-1, 0, 0.15], side: [0, 0, -1] },
+      pole: [0.4, -0.5, 0.8] },
+    right: { shape: 'Brelaxed', via: 'palm', orient: { dir: [0.35, -0.1, 1], side: [1, 0, -0.3] }, pole: [-0.3, -0.6, 0.9],
+      path: [[0, 'other.elbow', [0, 0.065, 0.01]], [0.2, 'other.elbow', [0, 0.065, 0.01]], [0.9, 'other.wrist', [0, 0.05, 0.01]], [1, 'other.wrist', [0, 0.05, 0.01]]] },
+    // din repaus, mâna dreaptă vine prin față și din dreapta (brațul drept trecea prin piept)
+    enter: { right: [-0.1, -0.05, 0.12], left: [0.05, -0.1, 0.1] }, exit: { left: [0.05, -0.1, 0.1], right: [-0.1, -0.05, 0.1] } },
   heart: {
     right: { shape: 'eight', contact: true, via: 'middle',
       path: [[0, 'chest_l', [0, 0.02, 0]], [0.25, 'chest_l', [-0.03, 0.05, 0]], [0.45, 'chest_l', [-0.05, 0.02, 0]], [0.8, 'chest_l', [0, -0.05, 0]], [1, 'chest_l', [0, -0.05, 0]]] },
@@ -156,7 +164,10 @@ export const SIGNS = {
   morning: {
     left: { shape: 'B', active: true, via: 'index', path: [[0, 'other.elbow', [0.045, 0, 0]]], orient: { dir: [-1, 0, 0.05], side: [0, 1, 0] } },
     right: { shape: 'B', arc: { upper: [-0.12, -0.75, 0.7], from: [0.05, 0.27, 1], to: [-0.13, 1, 0], t: [0.15, 0.86] },
-      orient: { dir: 'arc', side: [-1, 0, 0] } } },
+      orient: { dir: 'arc', side: [-1, 0, 0] } },
+    // spre repaus, antebrațul drept coboară întâi înainte (orizontal, cotul pe loc), apoi brațul cade
+    // lângă corp (direct, antebrațul trecea prin abdomen)
+    exit: { right: [0, -0.2, 0.2] } },
   night: { left: { hold: 0.5 }, right: { shape: 'bentB' }, touch: [0.5, 1] },
   // DAY (coborâre, 2.2 s). Cotul drept fix (balama) la nivelul plexului, în fața pieptului, sprijinit
   // deasupra degetelor stângi (~1.5 cm; pe mijlocul palmei, cotul stâng ajungea în piept).
@@ -175,9 +186,12 @@ export const SIGNS = {
     // degete (punctul de contact = vârful mijlociului îndoit, cel mai de jos: nu trece prin palma stângă)
     right: { shape: 'one', via: 'middle', orient: { dir: [0.4, 0, 1], side: [1, 0, 0] },
       path: [[0, 'other.heel', [0, 0.006, 0]], [0.15, 'other.heel', [0, 0.006, 0]], [0.8, 'other.fingers', [0, 0.006, 0]], [1, 'other.fingers', [0, 0.006, 0]]] } },
-  month: { left: { hold: 0.5, shape: 'one' },
-    right: { shape: 'one', via: 'index',
-      path: [[0, 'other.index', [0, 0.04, 0.02]], [0.2, 'other.index', [0, 0.01, 0.02]], [0.85, 'other.knuckles', [0, -0.03, 0.02]], [1, 'other.knuckles', [0, -0.03, 0.02]]] } },
+  // active: în primele cadre din date mâna dreaptă nu e detectată; fără el stătea în repaus și apoi
+  // sărea dintr-odată lângă arătătorul stâng (56 cm într-un cadru). Orientarea fixă (arătătorul
+  // orizontal spre stânga, palma spre corp): în cadrele fără mână, cea din date punea antebrațul peste ochi
+  month: { left: { hold: 0.5, shape: 'one', offset: [0, -0.06, 0] },
+    right: { shape: 'one', via: 'index', active: true, orient: { dir: [1, 0, 0], side: [0, 1, 0] },
+      path: [[0, 'other.index', [0, 0.01, 0.02]], [0.2, 'other.index', [0, 0.01, 0.02]], [0.85, 'other.knuckles', [0, -0.03, 0.02]], [1, 'other.knuckles', [0, -0.03, 0.02]]] } },
   ago: { right: { pivot: true }, left: { rest: true } },
   since: { right: { shape: 'one', offset: [0, -0.07, 0] }, left: { shape: 'one', offset: [0, -0.07, 0] } },
   two: { right: { shape: 'V' }, left: { rest: true } },

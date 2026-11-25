@@ -1,8 +1,8 @@
 """Arhitectura rețelei, separată de scriptul de antrenare, și predicția pe un semn brut."""
 import numpy as np
 from tensorflow.keras import regularizers
-from tensorflow.keras.layers import LSTM, Dense, Dropout, Input
-from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import LSTM, Average, Dense, Dropout, Input
+from tensorflow.keras.models import Model, Sequential
 from tensorflow.keras.optimizers import Adam
 
 from src.config import NUM_CLASSES, SEQUENCE_LENGTH
@@ -39,3 +39,15 @@ def build_model(units=64, dense_units=64, dropout=0.4, l2=1e-4, learning_rate=1e
     model.compile(optimizer=Adam(learning_rate=learning_rate),
                   loss='categorical_crossentropy', metrics=['categorical_accuracy'])
     return model
+
+
+def ensemble(models):
+    """
+    Mai multe modele antrenate identic, cu alt seed -> un singur model care face media
+    probabilităților lor. Se salvează și se încarcă ca orice model (load_model), deci
+    predicția live și evaluările rămân neschimbate.
+    """
+    inputs = Input(shape=models[0].input_shape[1:])
+    for k, model in enumerate(models):
+        model._name = f'membru_{k + 1}'   # nume unice în modelul combinat
+    return Model(inputs, Average()([model(inputs) for model in models]), name='ansamblu')

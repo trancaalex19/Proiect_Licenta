@@ -26,3 +26,9 @@ sounddevice==0.5.6
 # același pachet pe Windows și pe Pi (se importă ca `webrtcvad`)
 webrtcvad-wheels==2.0.14.post1
 jiwer==4.0.0
+
+# Text -> voce (propoziția pacientului, citită pentru medic). Wheel abi3 pentru Windows și Linux aarch64;
+# folosește onnxruntime-ul de mai sus. Vocea (ro_RO-mihai-medium) se descarcă separat:
+# python -m src.speech.tts --download
+piper-tts==1.8.0
+pathvalidate==3.3.1

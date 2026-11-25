@@ -5,6 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Avatar semne</title>
 <style>
+  /* Atkinson Hyperlegible (Braille Institute, OFL, vendor/atkinson/OFL.txt): litere ușor de deosebit,
+     pentru pacientul care citește subtitrarea. Local, ca pagina să meargă fără internet. */
+  @font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-display: swap;
+    src: url(./vendor/atkinson/ah-latin-400.woff2) format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-display: swap;
+    src: url(./vendor/atkinson/ah-latin-700.woff2) format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+  @font-face { font-family: "Atkinson Hyperlegible"; font-weight: 400; font-display: swap;
+    src: url(./vendor/atkinson/ah-latin-ext-400.woff2) format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+  @font-face { font-family: "Atkinson Hyperlegible"; font-weight: 700; font-display: swap;
+    src: url(./vendor/atkinson/ah-latin-ext-700.woff2) format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+
   :root { --bg: #eef1f5; --panel: #ffffff; --text: #1d2430; --muted: #5b6575; --accent: #2f6fde; }
   * { box-sizing: border-box; }
   html, body { margin: 0; height: 100%; background: var(--bg); color: var(--text);
@@ -22,6 +37,196 @@
   #subtitle .gloss { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px;
                      font-size: 18px; font-weight: 500; color: var(--muted); }
   #subtitle .gloss .current { color: var(--accent); font-weight: 700; }
+  body:not(.live) .live-only { display: none !important; }
+
+  /* ================================================================ prototipul (?live)
+     Avatarul stă pe un fundal închis și uniform, ca interpreții de limbaj mimico-gestual: mâinile
+     deschise la culoare se văd clar. Restul e „peretele cabinetului”, deschis și liniștit.
+     Două voci, două culori: medicul = verde-petrol (uniforma), pacientul = ocru.
+     Cine are rândul e arătat sus (Medic | Pacient) și prin conturul zonei lui. */
+  body.live {
+    --wall: #edf1ef; --surface: #ffffff; --ink: #15252b; --muted: #58696e; --rule: #d3dcd8;
+    --backdrop: #1c3a40; --backdrop-low: #152e33; --on-backdrop: #f3f7f6; --on-backdrop-muted: #a9c0c0;
+    --doctor: #0d6b74; --doctor-tint: #dcecea; --doctor-light: #8fd6cf;
+    --patient: #8f5305; --patient-bright: #e5982b; --patient-tint: #f6e7cf;
+    --ok: #2f8a5b;
+    --r-stage: 20px; --r-small: 8px;
+    background: var(--wall); color: var(--ink);
+    font-family: "Atkinson Hyperlegible", system-ui, "Segoe UI", sans-serif; font-size: 16px; line-height: 1.45;
+  }
+  body.live #bar { display: none; }
+  body.live #app { position: fixed; inset: 0; display: grid; gap: 16px 20px; padding: 14px 20px 18px;
+    grid-template-columns: minmax(0, 1fr) clamp(330px, 29vw, 430px);
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas: "top top" "stage side" "dock side"; }
+  body.live button { font: inherit; color: inherit; }
+  body.live :focus-visible { outline: 3px solid var(--patient-bright); outline-offset: 2px; }
+
+  /* ---- bara de sus: cine are rândul (cel mai important), apoi starea tehnică, discret */
+  #top { grid-area: top; display: flex; align-items: center; gap: 16px; min-height: 44px; }
+  #parties { display: flex; padding: 3px; border-radius: 999px; background: var(--surface); border: 1px solid var(--rule); }
+  #parties span { padding: 5px 16px; border-radius: 999px; font-weight: 700; color: var(--muted);
+                  transition: background-color .2s, color .2s; }
+  body[data-turn="doctor"] #parties .doctor { background: var(--doctor); color: #fff; }
+  body[data-turn="patient"] #parties .patient { background: var(--patient-bright); color: var(--ink); }
+  #turn { font-size: 18px; font-weight: 700; color: var(--ink); min-width: 0; overflow: hidden;
+          text-overflow: ellipsis; white-space: nowrap; }
+  #links { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 14px; color: var(--muted); }
+  .pill { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+  .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+  .pill.warn { color: var(--patient); }
+  .pill.warn::before { background: var(--patient-bright); }
+  #voiceBtn, #quit { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: var(--r-small);
+                     border: 1px solid var(--rule); background: var(--surface); cursor: pointer; white-space: nowrap; font-size: 14px; }
+  /* comutator: pornit = ocru, cu bila la dreapta */
+  #voiceBtn::before { content: ""; width: 28px; height: 16px; border-radius: 999px;
+                      background: radial-gradient(circle at 8px 50%, #fff 5px, transparent 5.5px) var(--rule); }
+  #voiceBtn[aria-pressed="true"]::before { background: radial-gradient(circle at 20px 50%, #fff 5px, transparent 5.5px) var(--patient-bright); }
+  #voiceBtn:disabled { cursor: default; opacity: .6; }
+  #quit { background: transparent; border-color: transparent; color: var(--muted); }
+  #quit:hover, #voiceBtn:hover:not(:disabled) { border-color: var(--muted); }
+
+  /* ---- scena: fundalul interpretului, subtitrarea dedesubt (nu acoperă spațiul semnelor) */
+  body.live #stage { grid-area: stage; position: relative; display: flex; flex-direction: column; min-height: 0;
+    border-radius: var(--r-stage); overflow: hidden; color: var(--on-backdrop);
+    background: radial-gradient(ellipse 55% 65% at 50% 38%, #2a5057 0%, var(--backdrop) 60%, var(--backdrop-low) 100%); }
+  body.live #scene { position: relative; flex: 1 1 auto; min-height: 0; }
+  body.live #scene canvas { position: absolute; inset: 0; }
+  body.live #stage::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+                            box-shadow: inset 0 0 0 4px transparent; transition: box-shadow .25s; }
+  body[data-turn="doctor"] #stage::after { box-shadow: inset 0 0 0 4px var(--doctor-light); }
+  body.live #subtitle { position: static; flex: 0 0 auto; min-height: 132px; display: grid; align-content: center;
+    justify-items: center; gap: 12px; padding: 14px 32px 22px; text-shadow: none; text-align: center; text-wrap: balance;
+    font-size: clamp(26px, 2.6vw, 40px); font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; }
+  body.live #subtitle > div:first-child:not(.gloss) { max-width: 30ch; }
+  /* pista semnelor: cele redate se sting, cel curent e plin */
+  body.live #subtitle .gloss { gap: 8px; margin: 0; font-size: 17px; font-weight: 400; letter-spacing: 0; color: var(--on-backdrop-muted); }
+  body.live #subtitle .gloss span { padding: 3px 12px; border-radius: 999px; border: 1px solid rgba(143,214,207,.45);
+                                    transition: background-color .15s, color .15s, opacity .3s; }
+  body.live #subtitle .gloss .done { opacity: .45; }
+  body.live #subtitle .gloss .current { background: var(--doctor-light); border-color: var(--doctor-light); color: var(--backdrop-low); font-weight: 700; }
+  body.live #subtitle:empty::before { content: "Ce spune medicul apare aici: semnat de avatar și scris.";
+    font-size: 18px; font-weight: 400; letter-spacing: 0; color: var(--on-backdrop-muted); }
+
+  /* ---- coloana pacientului: camera, ultimul semn, fișa consultației */
+  #side { grid-area: side; display: flex; flex-direction: column; gap: 16px; min-height: 0; }
+  #camBox { position: relative; flex: 0 0 auto; aspect-ratio: var(--cam-ratio, 4 / 3); max-height: 46vh;
+            border-radius: var(--r-stage); background: var(--backdrop-low); overflow: hidden; transition: box-shadow .25s; }
+  body[data-turn="patient"] #camBox { box-shadow: 0 0 0 4px var(--patient-bright); }
+  #cam { width: 100%; height: 100%; object-fit: cover; display: block; }
+  #camNote { position: absolute; left: 10px; bottom: 10px; right: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
+  #camNote span { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px; border-radius: 999px;
+                  background: rgba(21,46,51,.8); color: #fff; font-size: 13px; }
+  #camNote span::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #6fd39c; }
+  #camNote span.off::before { background: var(--patient-bright); }
+  #camPaused { position: absolute; inset: 0; display: none; place-items: center; padding: 24px; text-align: center;
+               background: rgba(21,46,51,.78); color: #fff; font-size: 17px; font-weight: 700; text-wrap: balance; }
+  body.cam-paused #camPaused { display: grid; }
+
+  #recog { flex: 0 0 auto; display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 2px 12px;
+           padding: 2px 0 14px; border-bottom: 1px solid var(--rule); }
+  #recog[hidden] { display: none; }
+  #recogWord { font-size: 26px; font-weight: 700; line-height: 1.15; color: var(--patient); }
+  #recogWord small { display: none; }
+  #recogPct { font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--patient); }
+  #recogMeter { grid-column: 1 / -1; height: 5px; margin: 6px 0 4px; border-radius: 3px; background: var(--patient-tint); overflow: hidden; }
+  #recogMeter i { display: block; height: 100%; background: var(--patient-bright); }
+  #recog.rejected #recogWord, #recog.rejected #recogPct { color: var(--muted); }
+  #recog.rejected #recogMeter i { background: var(--muted); }
+  #recogNote { grid-column: 1 / -1; font-size: 14px; color: var(--muted); }
+  #recogTop { grid-column: 1 / -1; margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 0 14px;
+              font-size: 14px; color: var(--muted); }
+  #recogTop li b { font-weight: 700; color: var(--ink); }
+
+  /* fișa consultației: rânduri, nu bule de chat; bara din stânga = cine a vorbit */
+  #thread { flex: 1 1 auto; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;
+            margin-right: -8px; padding-right: 8px; scroll-behavior: smooth; }
+  #thread .empty { margin: 0; display: grid; gap: 10px; color: var(--muted); font-size: 15px; }
+  #thread .empty b { color: var(--ink); }
+  #thread .empty p { margin: 0; padding-left: 12px; border-left: 3px solid var(--rule); }
+  #thread .empty .doctor { border-color: var(--doctor); }
+  #thread .empty .patient { border-color: var(--patient-bright); }
+  .msg { display: grid; grid-template-columns: 1fr auto; gap: 4px 10px; padding: 9px 4px 10px 14px;
+         border-left: 3px solid var(--rule); font-size: 18px; line-height: 1.3; animation: arrive .35s ease-out; }
+  .msg .who { font-size: 13px; font-weight: 700; }
+  .msg time { grid-column: 2; grid-row: 1; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .msg .text { grid-column: 1 / -1; }
+  .msg .signs { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: 13px; color: var(--muted); }
+  .msg .signs span { padding: 0 8px; border-radius: 999px; }
+  .msg.doctor { border-color: var(--doctor); }
+  .msg.doctor .who { color: var(--doctor); }
+  .msg.doctor .signs span { background: var(--doctor-tint); color: var(--doctor); }
+  .msg.patient { border-color: var(--patient-bright); background: linear-gradient(90deg, var(--patient-tint), transparent 70%); }
+  .msg.patient .who { color: var(--patient); }
+  .msg.patient .signs span { background: var(--surface); color: var(--patient); }
+  .msg .unknown { font-style: italic; }
+  .msg .listen { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px; border-radius: var(--r-small);
+                 border: 1px solid transparent; background: transparent; color: var(--patient); font-size: 13px; cursor: pointer; }
+  .msg .listen:hover { border-color: var(--patient-bright); }
+  .msg .listen svg { width: 15px; height: 15px; }
+  body.no-voice .msg .listen { display: none; }
+  .msg.system { grid-template-columns: 1fr; border-left-style: dashed; color: var(--muted); font-size: 15px; }
+  @keyframes arrive { from { opacity: 0; transform: translateY(6px); } }
+
+  /* ---- jos: butonul medicului și propoziția în curs a pacientului */
+  #dock { grid-area: dock; display: flex; align-items: stretch; gap: 16px; }
+  #speak { flex: 0 0 auto; display: flex; align-items: center; gap: 14px; min-width: 300px; padding: 14px 20px 14px 18px;
+           border-radius: var(--r-stage); border: 0; background: var(--doctor); color: #fff;
+           font-size: 21px; font-weight: 700; cursor: pointer; text-align: left; transition: background-color .2s; }
+  #speak:hover { background: #0a5a62; }
+  #speak svg { flex: 0 0 auto; width: 28px; height: 28px; }
+  #speak .label { display: grid; gap: 7px; flex: 1; }
+  #speak kbd { font: inherit; font-size: 13px; font-weight: 400; padding: 2px 8px; border-radius: 6px;
+               border: 1px solid rgba(255,255,255,.55); }
+  #meter { height: 6px; border-radius: 3px; background: rgba(255,255,255,.22); overflow: hidden; }
+  #speak[data-mic="repaus"] #meter { visibility: hidden; }
+  #meter i { display: block; height: 100%; width: 0; background: #fff; transition: width .12s linear; }
+  #speak[data-mic="ascultare"], #speak[data-mic="vorbire"] { background: var(--backdrop); box-shadow: 0 0 0 4px var(--doctor-light); }
+  #speak[data-mic="transcriere"] { background: var(--backdrop); cursor: progress; }
+  /* cât se aude vocea pacientului, microfonul e oprit (half-duplex) */
+  #speak[data-mic="redare"] { background: var(--patient-tint); color: var(--patient); cursor: wait; }
+  #speak[data-mic="redare"] #meter { background: rgba(143,83,5,.15); }
+  #speak[data-mic="redare"] kbd { border-color: currentColor; }
+
+  #pending { flex: 1; min-width: 0; display: grid; align-content: center; gap: 8px; padding: 12px 20px;
+             border-radius: var(--r-stage); background: var(--surface); border: 2px dashed var(--rule); }
+  #pending.active { border: 2px solid var(--patient-bright); background: var(--patient-tint); }
+  #pendingTitle { font-size: 15px; color: var(--muted); }
+  #pending.active #pendingTitle { color: var(--patient); }
+  #pendingWords { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+  #pendingWords:empty { display: none; }
+  #pendingWords span { padding: 2px 14px; border-radius: 999px; background: var(--surface); color: var(--ink);
+                       font-size: 20px; font-weight: 700; }
+  #pendingBar { height: 4px; border-radius: 2px; background: rgba(143,83,5,.15); overflow: hidden; }
+  #pending:not(.active) #pendingBar { display: none; }
+  #pendingBar i { display: block; height: 100%; width: 0; background: var(--patient-bright); }
+
+  @media (max-width: 900px) {
+    body.live { overflow: auto; }
+    body.live #app { position: static; min-height: 100%; padding: 12px 16px; grid-template-columns: 1fr;
+      grid-template-rows: auto 55vh auto auto; grid-template-areas: "top" "stage" "dock" "side"; }
+    #top { flex-wrap: wrap; }
+    #links { margin-left: 0; flex-wrap: wrap; }
+    #speak { min-width: 0; }
+    #dock { flex-direction: column; }
+  }
+  /* ecrane joase (ecranul de 7" al Pi-ului, 1024x600): avatarul păstrează cât mai multă înălțime */
+  @media (min-width: 901px) and (max-height: 720px) {
+    body.live #app { gap: 10px 14px; padding: 8px 14px 10px; }
+    #top { min-height: 36px; }
+    body.live #subtitle { min-height: 84px; padding: 8px 24px 12px; gap: 8px; font-size: clamp(22px, 2.2vw, 30px); }
+    body.live #subtitle .gloss { font-size: 15px; }
+    #speak { min-width: 240px; padding: 10px 16px; font-size: 18px; }
+    #pending { padding: 8px 16px; }
+    #pendingWords span { font-size: 17px; }
+    #side { gap: 10px; }
+    #recog { padding-bottom: 8px; }
+    #recogWord { font-size: 22px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    body.live *, body.live *::before, body.live *::after { transition: none !important; animation: none !important; }
+    #thread { scroll-behavior: auto; }
+  }
 </style>
 <script type="importmap">
 { "imports": {
@@ -32,7 +237,59 @@
 </script>
 </head>
 <body>
-<div id="scene"></div>
+<div id="app">
+  <header id="top" class="live-only">
+    <div id="parties" aria-hidden="true"><span class="doctor">Medic</span><span class="patient">Pacient</span></div>
+    <div id="turn" role="status">Se conectează…</div>
+    <div id="links">
+      <span id="speechPill" class="pill">Transcriere</span>
+      <span id="camPill" class="pill">Cameră</span>
+      <button id="voiceBtn" type="button" aria-pressed="true" title="Propoziția pacientului citită cu voce pentru medic">Vocea pacientului</button>
+      <button id="quit" type="button">Închide</button>
+    </div>
+  </header>
+
+  <section id="stage" aria-label="Avatarul care semnează ce spune medicul">
+    <div id="scene"></div>
+    <div id="subtitle"></div>
+  </section>
+
+  <aside id="side" class="live-only" aria-label="Pacientul">
+    <div id="camBox">
+      <img id="cam" alt="Camera pacientului">
+      <div id="camNote"><span id="handL">mâna stângă</span><span id="handR">mâna dreaptă</span></div>
+      <div id="camPaused">Medicul vorbește. Semnele se recunosc din nou după ce termină.</div>
+    </div>
+    <div id="recog" hidden>
+      <div id="recogWord"></div>
+      <div id="recogPct"></div>
+      <div id="recogMeter"><i></i></div>
+      <div id="recogNote"></div>
+      <ul id="recogTop"></ul>
+    </div>
+    <div id="thread" aria-live="polite">
+      <div class="empty">
+        <p class="doctor"><b>Medicul</b> apasă Space sau butonul de jos și vorbește. Avatarul semnează ce a spus.</p>
+        <p class="patient"><b>Pacientul</b> ridică mâinile peste linia din cameră și semnează. După o scurtă pauză, propoziția apare aici și se aude.</p>
+      </div>
+    </div>
+  </aside>
+
+  <footer id="dock" class="live-only">
+    <button id="speak" type="button" data-mic="repaus">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+      <span class="label"><span id="speakText">Vorbiți</span><span id="meter"><i></i></span></span>
+      <kbd>Space</kbd>
+    </button>
+    <div id="pending">
+      <div id="pendingTitle">Propoziția pacientului apare aici pe măsură ce semnează.</div>
+      <div id="pendingWords"></div>
+      <div id="pendingBar"><i></i></div>
+    </div>
+  </footer>
+</div>
+
 <div id="bar">
   <button id="prev" title="Semnul anterior (săgeată stânga sau P)">◀ Anterior</button>
   <label>Semn <select id="word"></select></label>
@@ -44,7 +301,6 @@
   <label>Viteză <select id="speed"><option value="1">1×</option><option value="0.5">0.5×</option><option value="0.25">0.25×</option></select></label>
   <span id="status">Se încarcă…</span>
 </div>
-<div id="subtitle"></div>
 <script type="module" src="./avatar.js"></script>
 </body>
 </html>

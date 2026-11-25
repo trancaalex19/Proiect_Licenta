@@ -23,7 +23,6 @@ import csv
 import functools
 import http.server
 import json
-import shutil
 import subprocess
 import tempfile
 import threading
@@ -31,7 +30,7 @@ from pathlib import Path
 
 import numpy as np
 
-from src.avatar.server import WEB_DIR, AvatarHandler
+from src.avatar.server import WEB_DIR, AvatarHandler, find_browser
 from src.config import ACTIONS, AVATAR_EVAL_DIR, AVATAR_MOTION_DIR, CAMERA_ASPECT, LABEL_MAP, MODEL_PATH
 from src.features.keypoints import FACE_END, LH_END, LH_START, POSE_END, RAW_DIM, RH_START
 from src.features.preprocessing import preprocess
@@ -59,11 +58,6 @@ FINGER_CHAINS = [[0, 1, 2, 3, 4], [0, 5, 6, 7, 8], [0, 9, 10, 11, 12], [0, 13, 1
 DATA_FINGER_LENGTHS = [[0.52, 0.45, 0.35, 0.28], [1.12, 0.50, 0.29, 0.22], [1.03, 0.53, 0.29, 0.21],
                        [0.95, 0.49, 0.27, 0.20], [0.91, 0.39, 0.21, 0.18]]
 TIMEOUT_SECONDS = 300
-BROWSERS = ['msedge', 'chrome', 'chromium', 'chromium-browser', 'google-chrome',
-            r'C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe',
-            r'C:\Program Files\Microsoft\Edge\Application\msedge.exe',
-            r'C:\Program Files\Google\Chrome\Application\chrome.exe']
-
 
 # ---------------------------------------------------------------- conversii de coordonate
 def scene_to_image(points, aspect=CAMERA_ASPECT):
@@ -176,14 +170,6 @@ def avatar_to_raw(result, motion):
 
 
 # ---------------------------------------------------------------- browserul și serverul
-def find_browser():
-    for name in BROWSERS:
-        path = shutil.which(name) or (name if Path(name).exists() else None)
-        if path:
-            return path
-    raise SystemExit('Nu am găsit Edge sau Chrome (necesar pentru a reda avatarul).')
-
-
 def run_backtranslation(words, motion_dir):
     """Pornește serverul și browserul headless; întoarce {cuvânt: punctele avatarului}."""
     results, done, errors = {}, threading.Event(), []

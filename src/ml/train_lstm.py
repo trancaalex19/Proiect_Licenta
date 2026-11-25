@@ -6,6 +6,8 @@ Antrenarea finală a modelului LSTM.
   - augmentare: aleatoare la fiecare epocă, DOAR pe train
   - epoci: număr fix (FIXED_EPOCHS, ales prin validare încrucișată), sau, dacă e None,
     oprire timpurie, reducerea learning rate-ului și alegerea modelului după val
+  - ansamblu: cu epoci fixe se antrenează câte un model pentru fiecare seed din
+    ENSEMBLE_SEEDS, iar modelul salvat face media probabilităților lor
   - test: evaluat o singură dată, la final
 
 Rulare (din rădăcina proiectului):
@@ -22,7 +24,7 @@ from tensorflow.keras.utils import to_categorical
 
 from src.config import ACTIONS, MODEL_PATH, NUM_CLASSES, SEED, USE_RECORDED_DATA
 from src.ml.dataset import AugmentedSequence, load_recorded, load_split, load_splits
-from src.ml.model import build_model
+from src.ml.model import build_model, ensemble
 
 MAX_EPOCHS = 300
 BATCH_SIZE = 16
@@ -30,6 +32,14 @@ BATCH_SIZE = 16
 # modelul final se antrenează exact cum a fost evaluat acolo. Setul de val e prea mic
 # pentru o oprire timpurie sigură; se raportează doar. None = oprire timpurie pe val.
 FIXED_EPOCHS = 200
+# Ansamblu (2026-11-25): același model antrenat cu seed-uri diferite dă rezultate live foarte
+# diferite (date vechi: 78-90% pe sesiunea live 20261111, 85-92% pe 20261125), deci un singur
+# model e o loterie. Cu cele 50 de înregistrări noi (my, please, stomach, water, drink), 3 seed-uri:
+#   un model:              92% / 92-94%      (128 de unități LSTM în loc de 64: fără câștig)
+#   media celor 3 modele:  95.1% / 97.0%     <- folosită (modelul vechi: 91.2% / 97.0%)
+# Atenție: ambele sesiuni live au servit la această alegere; cifra finală pentru teză vine
+# dintr-o sesiune live nouă.
+ENSEMBLE_SEEDS = (1, 2, 3)
 
 
 def main():
@@ -51,30 +61,40 @@ def main():
             print(f"+ {len(X_rec)} înregistrări proprii în antrenare ({counts})")
     print(f"Forma unei secvențe: {X_train.shape[1:]} (cadre, trăsături)")
 
-    # 2. Model și callbacks (toate pe val_loss, ca modelul salvat = modelul evaluat)
-    model = build_model()
-    model.summary()
+    # 2-3. Antrenare: augmentare aleatoare la fiecare epocă, doar pe train
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
+    validation = (X_val, to_categorical(y_val, NUM_CLASSES))
     if FIXED_EPOCHS:
-        callbacks, epochs = [], FIXED_EPOCHS   # ca în validarea încrucișată
-    else:
-        callbacks, epochs = [
-            ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=20, min_lr=1e-5, verbose=1),
-            EarlyStopping(monitor='val_loss', patience=60, restore_best_weights=True),
-            ModelCheckpoint(MODEL_PATH, monitor='val_loss', save_best_only=True),
-        ], MAX_EPOCHS
-
-    # 3. Antrenare: augmentare aleatoare la fiecare epocă, doar pe train
-    print(f"Începem antrenarea modelului ({f'{epochs} epoci fixe' if FIXED_EPOCHS else 'oprire timpurie pe val'})...")
-    model.fit(
-        AugmentedSequence(X_train, y_train, batch_size=BATCH_SIZE, seed=SEED),
-        validation_data=(X_val, to_categorical(y_val, NUM_CLASSES)),
-        epochs=epochs,
-        callbacks=callbacks,
-        verbose=2,
-    )
-    if FIXED_EPOCHS:
+        # ca în validarea încrucișată: epoci fixe, un model pentru fiecare seed, apoi media lor
+        members = []
+        for k, seed in enumerate(ENSEMBLE_SEEDS, 1):
+            print(f"Modelul {k}/{len(ENSEMBLE_SEEDS)} (seed {seed}): {FIXED_EPOCHS} epoci fixe...", flush=True)
+            tf.keras.utils.set_random_seed(seed)
+            member = build_model()
+            if k == 1:
+                member.summary()
+            member.fit(AugmentedSequence(X_train, y_train, batch_size=BATCH_SIZE, seed=seed),
+                       validation_data=validation, epochs=FIXED_EPOCHS, verbose=2)
+            print(f"  val: {np.mean(np.argmax(member.predict(X_val, verbose=0), axis=1) == y_val):.2%}")
+            members.append(member)
+        model = ensemble(members) if len(members) > 1 else members[0]
         model.save(MODEL_PATH)
+    else:
+        # oprire timpurie: callbacks pe val_loss, ca modelul salvat = modelul evaluat
+        model = build_model()
+        model.summary()
+        print("Începem antrenarea modelului (oprire timpurie pe val)...")
+        model.fit(
+            AugmentedSequence(X_train, y_train, batch_size=BATCH_SIZE, seed=SEED),
+            validation_data=validation,
+            epochs=MAX_EPOCHS,
+            callbacks=[
+                ReduceLROnPlateau(monitor='val_loss', factor=0.5, patience=20, min_lr=1e-5, verbose=1),
+                EarlyStopping(monitor='val_loss', patience=60, restore_best_weights=True),
+                ModelCheckpoint(MODEL_PATH, monitor='val_loss', save_best_only=True),
+            ],
+            verbose=2,
+        )
 
     # 4. Evaluare finală, o singură dată, pe setul de test
     val_acc = np.mean(np.argmax(model.predict(X_val, verbose=0), axis=1) == y_val)
@@ -87,7 +107,8 @@ def main():
                                 target_names=ACTIONS, zero_division=0))
     print("Matrice de confuzie (rânduri = adevărat, coloane = prezis):")
     print(confusion_matrix(y_test, y_pred, labels=range(NUM_CLASSES)))
-    saved = f"după {FIXED_EPOCHS} epoci" if FIXED_EPOCHS else "cel mai bun după val_loss"
+    saved = (f"media a {len(ENSEMBLE_SEEDS)} modele, {FIXED_EPOCHS} epoci fiecare" if FIXED_EPOCHS
+             else "cel mai bun după val_loss")
     print(f"\nModelul ({saved}) a fost salvat în {MODEL_PATH}")
 
 

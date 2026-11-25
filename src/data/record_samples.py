@@ -30,7 +30,7 @@ import cv2
 import mediapipe as mp
 import numpy as np
 
-from src.app.camera import make_holistic, open_camera, place_windows, resize_for_display
+from src.app.camera import camera_source, make_holistic, open_camera, place_windows, resize_for_display
 from src.config import ACTIONS, CAMERA_INDEX, KEYPOINTS_DIR, RECORDED_DIR, SEQUENCE_LENGTH
 from src.features.keypoints import FACE_END, POSE_END, extract_keypoints, to_fixed_length
 
@@ -154,7 +154,7 @@ def parse_args():
                         help='exemple per cuvânt (implicit: maximul din WLASL)')
     parser.add_argument('--words', nargs='+', choices=ACTIONS, default=ACTIONS,
                         help='doar aceste cuvinte')
-    parser.add_argument('--camera', type=int, default=CAMERA_INDEX)
+    parser.add_argument('--camera', type=camera_source, default=CAMERA_INDEX)
     parser.add_argument('--seconds', type=float, default=None,
                         help=f'durata unei înregistrări (implicit {RECORD_SECONDS:.0f}s; {WORD_SECONDS})')
     return parser.parse_args()

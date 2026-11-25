@@ -4,6 +4,7 @@ Toate scripturile importă de aici, ca să nu existe copii care se pot desincron
 Căile sunt relative la rădăcina proiectului (scripturile se rulează din rădăcină).
 """
 import os
+import sys
 from pathlib import Path
 
 # Cele 51 de cuvinte (scenariul: pacient surd la medicul de familie).
@@ -52,8 +53,16 @@ MODEL_PATH = os.path.join('models', 'sign_language_model.h5')
 # Folderul local cu toate mp4-urile WLASL descărcate (folosit doar de organize_videos.py)
 WLASL_VIDEOS_SOURCE = r'C:\Desktop\dataset licenta\videos'
 
-# Camera pentru predicția live: 0 = camera laptopului, 1 = telefonul conectat ca webcam
-CAMERA_INDEX = 1
+# Camera pentru predicția live: 0 = camera laptopului, 1 = telefonul conectat ca webcam.
+# Pe Raspberry Pi (Linux) camera USB este de obicei 0 (/dev/video0).
+ON_LINUX = sys.platform.startswith('linux')
+CAMERA_INDEX = 0 if ON_LINUX else 1
+# Rezoluția cerută camerei (lățime, înălțime); None = cea implicită a camerei. MediaPipe micșorează
+# oricum imaginea, deci pe Pi 640x480 doar economisește procesor (conversii, JPEG pentru pagină).
+CAMERA_FRAME_SIZE = (640, 480) if ON_LINUX else None
+# MediaPipe Holistic: 1 = modelul cu care s-au extras toate datele de antrenare (implicit);
+# 0 = mai rapid (pe Pi, dacă FPS-ul e prea mic), dar punctele sunt puțin mai puțin precise.
+HOLISTIC_MODEL_COMPLEXITY = 1
 
 # Secvențe
 SEQUENCE_LENGTH = 30   # cadre per exemplu
@@ -145,6 +154,14 @@ SPEECH_EVAL_FILE = Path(DATA_DIR) / 'speech_eval.csv'          # rezultatele eva
 GROQ_RATE_LIMIT_WAIT_SECONDS = 10
 GROQ_RATE_LIMIT_RETRIES = 3
 
+# Text -> voce (src/speech/tts.py): propoziția semnată de pacient, citită cu voce tare pentru medic.
+# Piper rulează local (și pe Pi); ro_RO-mihai-medium este singura voce românească Piper.
+TTS_ENABLED = True
+TTS_VOICE = 'ro_RO-mihai-medium'
+TTS_MODEL_DIR = Path('models') / 'piper'   # nu e în git: python -m src.speech.tts --download
+TTS_LENGTH_SCALE = 1.1                     # > 1 = mai rar (mai clar pentru medic), < 1 = mai repede
+TTS_VOLUME = 1.0
+
 # ---------------------------------------------------------------------------
 # Avatar 3D care semnează (text al medicului -> semne ASL), în src/avatar/
 # ---------------------------------------------------------------------------
@@ -157,3 +174,24 @@ AVATAR_PORT = 8765
 # MediaPipe sunt fracții din lățime (x) și din înălțime (y); fără raport, mișcarea s-ar turti.
 # Estimat din date: palma (rigidă) are lungimi cel mai constante în timp la 0.5625.
 CAMERA_ASPECT = 9 / 16
+
+# ---------------------------------------------------------------------------
+# Traducere text -> glose (src/translate/) și prototipul end-to-end (src/app/prototype.py)
+# ---------------------------------------------------------------------------
+TRANSLATE_SENTENCES_FILE = Path('src') / 'avatar' / 'web' / 'sentences.js'   # frazele cu glose scrise de mână
+TRANSLATE_SENTENCE_THRESHOLD = 0.85   # asemănare (0..1, difflib) peste care se iau glosele frazei întregi
+TRANSLATE_PREFIX_MIN_CHARS = 4        # cuvintele-cheie cu atâtea litere se potrivesc și ca început („capul”)
+
+# Pacient (semne -> propoziție): un semn intră în propoziție doar peste această încredere,
+# iar propoziția se încheie după PATIENT_PAUSE_SECONDS fără niciun semn nou
+PATIENT_MIN_CONFIDENCE = 0.6
+PATIENT_PAUSE_SECONDS = 3.0
+PATIENT_MAX_WORDS = 8                 # propoziția se trimite oricum după atâtea semne
+
+PROTOTYPE_POLL_MS = 150               # cât de des citește pagina starea (/api/state)
+PROTOTYPE_HISTORY = 30                # câte mesaje rămân în firul conversației din pagină
+PROTOTYPE_STREAM_HEIGHT = 480         # imaginea camerei trimisă paginii (MJPEG): înălțimea în pixeli
+PROTOTYPE_JPEG_QUALITY = 75
+PROTOTYPE_MIRROR_CAMERA = True        # doar afișarea (ca într-o oglindă); recunoașterea vede imaginea originală
+PROTOTYPE_WINDOW_SIZE = (1440, 900)   # fereastra aplicației (Edge / Chrome în modul --app)
+PROTOTYPE_LOG_FILE = Path(DATA_DIR) / 'prototype_log.csv'   # fiecare mesaj medic/pacient + cuvintele fără semn

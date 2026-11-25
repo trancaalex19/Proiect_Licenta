@@ -28,7 +28,7 @@ import cv2
 import numpy as np
 from tensorflow.keras.models import load_model
 
-from src.app.camera import (make_holistic, open_camera, place_windows, process_frame,
+from src.app.camera import (camera_source, make_holistic, open_camera, place_windows, process_frame,
                             resize_for_display, smooth_fps)
 from src.app.overlay import draw_landmarks, draw_overlay, draw_segmenter
 from src.app.segmenter import SignSegmenter
@@ -43,7 +43,7 @@ THRESHOLD = 0.85      # în modul --continuu: cuvântul se afișează doar peste
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Recunoaștere live ASL')
-    parser.add_argument('--camera', type=int, default=CAMERA_INDEX,
+    parser.add_argument('--camera', type=camera_source, default=CAMERA_INDEX,
                         help=f'indexul camerei (implicit {CAMERA_INDEX}, din src/config.py)')
     parser.add_argument('--no-guide', action='store_true', help='nu deschide ghidul de semne')
     parser.add_argument('--continuu', action='store_true',
